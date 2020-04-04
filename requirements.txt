@@ -1,0 +1,4 @@
+pyqt5
+js2py
+requests
+lxml
