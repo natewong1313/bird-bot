@@ -29,11 +29,6 @@ class HomePage(QtWidgets.QWidget):
         self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout.setContentsMargins(0, -1, 0, -1)
         self.verticalLayout.setSpacing(2)
-        for i in range(1):
-            self.task_count+=1
-            task = TaskTab("Walmart","https://www.walmart.com/ip/Sorry-Board-Game-Ages-6-Up-For-2-to-4-players/804879505","Profile1","5.0","5.0","",self.scrollAreaWidgetContents)
-            self.verticalLayout.addWidget(task)
-            self.tasks.append(task)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -159,6 +154,7 @@ class HomePage(QtWidgets.QWidget):
         self.startall_btn = QtWidgets.QPushButton(self.buttons_card)
         self.startall_btn.setGeometry(QtCore.QRect(103, 10, 86, 32))
         font = QtGui.QFont()
+        font.setPointSize(13) if platform.system() == "Darwin" else font.setPointSize(13*.75)
         font.setFamily("Arial")
         self.startall_btn.setFont(font)
         self.startall_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))

@@ -50,21 +50,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.profiles_icon.setPixmap(QtGui.QPixmap(":/images/profiles.png"))
         self.profiles_icon.setScaledContents(True)
         self.profiles_icon.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        # self.settings_tab = QtWidgets.QWidget(self.sidebar)
-        # self.settings_tab.setGeometry(QtCore.QRect(0, 175, 60, 45))
-        # self.settings_tab.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        # self.settings_tab.setStyleSheet("background-color: transparent;border: none;")
-        # self.settings_active_tab = QtWidgets.QWidget(self.settings_tab)
-        # self.settings_active_tab.setGeometry(QtCore.QRect(0, 0, 4, 45))
-        # self.settings_active_tab.setStyleSheet("background-color: transparent;border: none;")
-        # self.settings_active_tab.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        # self.settings_icon = QtWidgets.QLabel(self.settings_tab)
-        # self.settings_icon.setGeometry(QtCore.QRect(21, 13, 20, 20))
-        # self.settings_icon.setStyleSheet("border: none;")
-        # self.settings_icon.setText("")
-        # self.settings_icon.setPixmap(QtGui.QPixmap(":/images/settings.png"))
-        # self.settings_icon.setScaledContents(True)
-        # self.settings_icon.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.logo = QtWidgets.QLabel(self.sidebar)
         self.logo.setGeometry(QtCore.QRect(10, 23, 41, 41))
         self.logo.setStyleSheet("border: none;")
@@ -74,6 +59,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.homepage = HomePage(self.centralwidget)
         self.createdialog = CreateDialog(self)
         self.createdialog.addtask_btn.clicked.connect(self.create_task)
+        self.createdialog.setWindowIcon(QtGui.QIcon("images/birdbot.png"))
         self.createdialog.hide()
         self.profilespage = ProfilesPage(self.centralwidget)
         self.profilespage.hide()
@@ -84,7 +70,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_page = "home"
         self.home_tab.mousePressEvent = lambda event: self.change_page(event,"home")
         self.profiles_tab.mousePressEvent = lambda event: self.change_page(event,"profiles")
-        # self.settings_tab.mousePressEvent = lambda event: self.change_page(event,"settings")
         self.homepage.newtask_btn.clicked.connect(self.createdialog.show)
     
     def change_page(self,event,current_page):
@@ -123,4 +108,5 @@ class MainWindow(QtWidgets.QMainWindow):
 if __name__ == "__main__":
     ui_app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow()
+    ui.setWindowIcon(QtGui.QIcon("images/birdbot.png"))
     os._exit(ui_app.exec_())
