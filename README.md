@@ -34,8 +34,7 @@ To start making tasks, you will first need to setup a profile. A profile contain
   <img src="https://i.imgur.com/BTTki9y.png" alt="Bird Bot Profiles" width="738">
 </p>
 
-After you're done making a profile, you will want to create a task. Tasks will automatically checkout the item if it is instock, or wait for it to restock. You can run as many tasks as you would like. To make a task, go back to the homepage and click the add task button in the top right
-
+After you're done making a profile, you will want to create a task. Tasks will automatically checkout the item if it is instock, or wait for it to restock. You can run as many tasks as you would like. To make a task, go back to the homepage and click the add task button in the top right. You will then see a pop-up window appear. Choose a site, input the link of the product you want to checkout, and choose a profile. There are two numbers that will be automatically filled out in the bottom left. These numbers are how many seconds the bot will sleep for if it is waiting for a restock or an error occurs. You can change these to whatever you prefer. If you are waiting for a product to restock for a certain price, click the max price checkbox and input the highest price you want to pay for the item. Then click add task
 <p align="center">
   <img src="https://i.imgur.com/Kya9pbe.png" alt="Bird Bot Popup" width="438">
 </p>
