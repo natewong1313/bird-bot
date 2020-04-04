@@ -24,7 +24,18 @@ pip install -r requirements.txt
 If you don't have git installed, you can instead download the repository [here](https://github.com/natewong1313/bird-bot/archive/master.zip). Then cd into it and run `pip install -r requirements.txt`
 
 ## Usage
+To start the bot, run 
+```sh
+python app.py
+```
 To start making tasks, you will first need to setup a profile. A profile contains your shipping, billing, and payment details that are used to checkout. Click the wallet icon on the sidebar and you will the profiles page. Once you've filled out your information, name the profile and then click the save button. You can use the load profile dropdown to check existing profiles or delete profiles.
+
 <p align="center">
-  <img src="https://i.imgur.com/BTTki9y.png" alt="Bird Bot UI" width="738">
+  <img src="https://i.imgur.com/BTTki9y.png" alt="Bird Bot Profiles" width="738">
+</p>
+
+After you're done making a profile, you will want to create a task. Tasks will automatically checkout the item if it is instock, or wait for it to restock. You can run as many tasks as you would like. To make a task, go back to the homepage and click the add task button in the top right
+
+<p align="center">
+  <img src="https://i.imgur.com/Kya9pbe.png" alt="Bird Bot Popup" width="438">
 </p>
