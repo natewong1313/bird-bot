@@ -12,7 +12,6 @@ class HomePage(QtWidgets.QWidget):
         self.setupUi(self)
     def setupUi(self, homepage):
         self.tasks = []
-        self.task_count = 0
         self.homepage = homepage
         self.homepage.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.homepage.setGeometry(QtCore.QRect(60, 0, 1041, 601))
@@ -125,7 +124,7 @@ class HomePage(QtWidgets.QWidget):
         self.tasks_total_count.setFont(font)
         self.tasks_total_count.setStyleSheet("color: #755FF6;border: none;")
         self.tasks_total_count.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.tasks_total_count.setText(str(self.task_count))
+        self.tasks_total_count.setText("0")
         self.carted_card = QtWidgets.QWidget(self.homepage)
         self.carted_card.setGeometry(QtCore.QRect(240, 45, 171, 51))
         self.carted_card.setStyleSheet("background-color: #232323;border-radius: 10px;border: 1px solid #2e2d2d;")
@@ -154,7 +153,6 @@ class HomePage(QtWidgets.QWidget):
         self.startall_btn = QtWidgets.QPushButton(self.buttons_card)
         self.startall_btn.setGeometry(QtCore.QRect(103, 10, 86, 32))
         font = QtGui.QFont()
-        font.setPointSize(13) if platform.system() == "Darwin" else font.setPointSize(13*.75)
         font.setFamily("Arial")
         self.startall_btn.setFont(font)
         self.startall_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -206,6 +204,7 @@ class HomePage(QtWidgets.QWidget):
 class TaskTab(QtWidgets.QWidget):
     def __init__(self,site,product,profile,monitor_delay,error_delay,max_price,parent=None):
         super(TaskTab, self).__init__(parent)
+        tasks_total_count.setText(str(int(tasks_total_count.text())+1))
         self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,monitor_delay,error_delay,max_price
         self.setupUi(self) 
     def setupUi(self,TaskTab):
