@@ -38,3 +38,8 @@ After you're done making a profile, you will want to create a task. Tasks will a
 <p align="center">
   <img src="https://i.imgur.com/Kya9pbe.png" alt="Bird Bot Popup" width="438">
 </p>
+
+Now that you have made a task(s), you can start them by clicking the play icon. You can delete the task by clicking the trash can icon. Make sure to not delete the task if it's running.
+<p align="center">
+  <img src="https://i.imgur.com/edPtLPV.png" alt="Bird Bot Tasks" width="738">
+</p>
