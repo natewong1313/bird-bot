@@ -11,7 +11,9 @@ class HomePage(QtWidgets.QWidget):
         super(HomePage, self).__init__(parent)
         self.setupUi(self)
     def setupUi(self, homepage):
+        global tasks
         self.tasks = []
+        tasks = self.tasks
         self.homepage = homepage
         self.homepage.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.homepage.setGeometry(QtCore.QRect(60, 0, 1041, 601))
@@ -206,7 +208,8 @@ class TaskTab(QtWidgets.QWidget):
         super(TaskTab, self).__init__(parent)
         tasks_total_count.setText(str(int(tasks_total_count.text())+1))
         self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,monitor_delay,error_delay,max_price
-        self.setupUi(self) 
+        self.setupUi(self)
+        tasks.append(self) 
     def setupUi(self,TaskTab):
         self.running = False
 
