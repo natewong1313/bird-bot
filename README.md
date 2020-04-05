@@ -19,14 +19,14 @@ Here's what you need to do to get Bird Bot installed on your computer.
 ```sh
 git clone https://github.com/natewong1313/bird-bot.git
 cd bird-bot
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 If you don't have git installed, you can instead download the repository [here](https://github.com/natewong1313/bird-bot/archive/master.zip). Then cd into it and run `pip install -r requirements.txt`
 
 ## Usage
 To start the bot, run 
 ```sh
-python app.py
+python3 app.py
 ```
 To start making tasks, you will first need to setup a profile. A profile contains your shipping, billing, and payment details that are used to checkout. Click the wallet icon on the sidebar and you will the profiles page. Once you've filled out your information, name the profile and then click the save button. You can use the load profile dropdown to check existing profiles or delete profiles.
 
