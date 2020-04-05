@@ -16,6 +16,13 @@ Here's what you need to do to get Bird Bot installed on your computer.
 ### Prerequisites
 * **Python 3** - you can download it [here](https://www.python.org/downloads/release/python-360/) (scroll down). When you run the installer, make sure you select "Add Python 3.6 to PATH"
 ### Installation
+**Windows**
+```sh
+git clone https://github.com/natewong1313/bird-bot.git
+cd bird-bot
+pip install -r requirements.txt
+```
+**Mac**
 ```sh
 git clone https://github.com/natewong1313/bird-bot.git
 cd bird-bot
@@ -24,7 +31,12 @@ pip3 install -r requirements.txt
 If you don't have git installed, you can instead download the repository [here](https://github.com/natewong1313/bird-bot/archive/master.zip). Then cd into it and run `pip install -r requirements.txt`
 
 ## Usage
-To start the bot, run 
+To start the bot, run<br/>
+**Windows**
+```sh
+python app.py
+```
+**Mac**
 ```sh
 python3 app.py
 ```
