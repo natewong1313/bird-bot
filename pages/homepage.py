@@ -1,10 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
-from utils import get_profile
+from sites.bestbuy import BestBuy
+from utils import get_profile, BirdLogger
 import urllib.request,sys,platform
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
 sys.excepthook = no_abort
+logger = BirdLogger()
 
 class HomePage(QtWidgets.QWidget):
     def __init__(self,parent=None):
@@ -34,7 +36,7 @@ class HomePage(QtWidgets.QWidget):
         self.verticalLayout.addItem(spacerItem)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.image_table_header = QtWidgets.QLabel(self.tasks_card)
-        self.image_table_header.setGeometry(QtCore.QRect(30, 7, 51, 31))
+        self.image_table_header.setGeometry(QtCore.QRect(40, 7, 51, 31))
         self.image_table_header.setText("Image")
         font = QtGui.QFont()
         font.setFamily("Arial")
@@ -44,7 +46,7 @@ class HomePage(QtWidgets.QWidget):
         self.image_table_header.setFont(font)
         self.image_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
         self.product_table_header = QtWidgets.QLabel(self.tasks_card)
-        self.product_table_header.setGeometry(QtCore.QRect(190, 7, 61, 31))
+        self.product_table_header.setGeometry(QtCore.QRect(240, 7, 61, 31))
         self.product_table_header.setFont(font)
         self.product_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
         self.product_table_header.setText("Product")
@@ -64,10 +66,15 @@ class HomePage(QtWidgets.QWidget):
         self.actions_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
         self.actions_table_header.setText("Actions")
         self.site_table_header = QtWidgets.QLabel(self.tasks_card)
-        self.site_table_header.setGeometry(QtCore.QRect(110, 7, 61, 31))
+        self.site_table_header.setGeometry(QtCore.QRect(160, 7, 61, 31))
         self.site_table_header.setFont(font)
         self.site_table_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
         self.site_table_header.setText("Site")
+        self.id_header = QtWidgets.QLabel(self.tasks_card)
+        self.id_header.setGeometry(QtCore.QRect(110, 7, 31, 31))
+        self.id_header.setFont(font)
+        self.id_header.setStyleSheet("color: rgb(234, 239, 239);border: none;")
+        self.id_header.setText("ID")
         self.tasks_header = QtWidgets.QLabel(self.homepage)
         self.tasks_header.setGeometry(QtCore.QRect(30, 10, 61, 31))
         self.tasks_header.setText("Tasks")
@@ -206,7 +213,8 @@ class HomePage(QtWidgets.QWidget):
 class TaskTab(QtWidgets.QWidget):
     def __init__(self,site,product,profile,monitor_delay,error_delay,max_price,parent=None):
         super(TaskTab, self).__init__(parent)
-        tasks_total_count.setText(str(int(tasks_total_count.text())+1))
+        self.task_id = str(int(tasks_total_count.text())+1)
+        tasks_total_count.setText(self.task_id)
         self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,monitor_delay,error_delay,max_price
         self.setupUi(self)
         tasks.append(self) 
@@ -218,7 +226,7 @@ class TaskTab(QtWidgets.QWidget):
         self.TaskTab.setMaximumSize(QtCore.QSize(16777215, 50))
         self.TaskTab.setStyleSheet("border-radius: none;")
         self.product_label = QtWidgets.QLabel(self.TaskTab)
-        self.product_label.setGeometry(QtCore.QRect(172, 10, 371, 31))
+        self.product_label.setGeometry(QtCore.QRect(222, 10, 331, 31))
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(13) if platform.system() == "Darwin" else font.setPointSize(13*.75)
@@ -228,20 +236,10 @@ class TaskTab(QtWidgets.QWidget):
         self.product_label.setStyleSheet("color: rgb(234, 239, 239);")
         self.profile_label = QtWidgets.QLabel(self.TaskTab)
         self.profile_label.setGeometry(QtCore.QRect(571, 10, 51, 31))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(13) if platform.system() == "Darwin" else font.setPointSize(13*.75)
-        font.setBold(False)
-        font.setWeight(50)
         self.profile_label.setFont(font)
         self.profile_label.setStyleSheet("color: rgb(234, 239, 239);")
         self.status_label = QtWidgets.QLabel(self.TaskTab)
         self.status_label.setGeometry(QtCore.QRect(632, 10, 231, 31))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(13) if platform.system() == "Darwin" else font.setPointSize(13*.75)
-        font.setBold(False)
-        font.setWeight(50)
         self.status_label.setFont(font)
         self.status_label.setStyleSheet("color: rgb(234, 239, 239);")
         self.start_btn = QtWidgets.QLabel(self.TaskTab)
@@ -263,18 +261,17 @@ class TaskTab(QtWidgets.QWidget):
         self.delete_btn.setScaledContents(True)
         self.delete_btn.mousePressEvent = self.delete
         self.image = QtWidgets.QLabel(self.TaskTab)
-        self.image.setGeometry(QtCore.QRect(10, 0, 50, 50))
+        self.image.setGeometry(QtCore.QRect(20, 0, 50, 50))
         self.image.setPixmap(QtGui.QPixmap(":/images/no_image.png"))
         self.image.setScaledContents(True)
         self.site_label = QtWidgets.QLabel(self.TaskTab)
-        self.site_label.setGeometry(QtCore.QRect(90, 10, 61, 31))
-        font = QtGui.QFont()
-        font.setFamily("Arial")
-        font.setPointSize(13) if platform.system() == "Darwin" else font.setPointSize(13*.75)
-        font.setBold(False)
-        font.setWeight(50)
+        self.site_label.setGeometry(QtCore.QRect(140, 10, 61, 31))
         self.site_label.setFont(font)
         self.site_label.setStyleSheet("color: rgb(234, 239, 239);")
+        self.id_label = QtWidgets.QLabel(self.TaskTab)
+        self.id_label.setGeometry(QtCore.QRect(90, 10, 31, 31))
+        self.id_label.setFont(font)
+        self.id_label.setStyleSheet("color: rgb(234, 239, 239);")
         self.stop_btn.raise_()
         self.product_label.raise_()
         self.profile_label.raise_()
@@ -290,6 +287,7 @@ class TaskTab(QtWidgets.QWidget):
         self.max_price_label = QtWidgets.QLabel(self.TaskTab)
         self.max_price_label.hide()
 
+        self.id_label.setText(self.task_id)
         self.product_label.setText(self.product)
         self.profile_label.setText(self.profile)
         self.status_label.setText("Idle")
@@ -302,19 +300,25 @@ class TaskTab(QtWidgets.QWidget):
         self.status_label.setText(msg["msg"])
         if msg["status"] == "idle":
             self.status_label.setStyleSheet("color: rgb(255, 255, 255);")
+            logger.normal(self.task_id,msg["msg"])
         elif msg["status"] == "normal":
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
+            logger.normal(self.task_id,msg["msg"])
         elif msg["status"] == "alt":
             self.status_label.setStyleSheet("color: rgb(242, 166, 137);")
+            logger.alt(self.task_id,msg["msg"])
         elif msg["status"] == "error":
             self.status_label.setStyleSheet("color: rgb(252, 81, 81);")
+            logger.error(self.task_id,msg["msg"])
         elif msg["status"] == "success":
             self.status_label.setStyleSheet("color: rgb(52, 198, 147);")
+            logger.success(self.task_id,msg["msg"])
             self.running = False
             self.start_btn.raise_()
             checkouts_count.setText(str(int(checkouts_count.text())+1))
         elif msg["status"] == "carted":
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
+            logger.alt(self.task_id,msg["msg"])
             carted_count.setText(str(int(carted_count.text())+1))
     
     def update_image(self,image_url):
@@ -366,6 +370,8 @@ class TaskThread(QtCore.QThread):
             return
         if self.site == "Walmart":
             Walmart(self.status_signal,self.image_signal,self.product,profile,self.monitor_delay,self.error_delay,self.max_price)
+        elif self.site == "Bestbuy":
+            BestBuy(self.status_signal,self.image_signal,self.product,profile,self.monitor_delay,self.error_delay)
 
     def stop(self):
         self.terminate()
