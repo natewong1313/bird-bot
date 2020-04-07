@@ -1,6 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
-from sites.bestbuy import BestBuy
 from utils import get_profile, BirdLogger
 import urllib.request,sys,platform
 def no_abort(a, b, c):
