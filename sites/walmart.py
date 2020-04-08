@@ -106,8 +106,12 @@ class Walmart:
                     self.status_signal.emit({"msg":"Loaded Cart Items","status":"normal"})
                     return item_id, fulfillment_option, ship_method
                 else:
-                    self.status_signal.emit({"msg":"Error Loading Cart Items","status":"error"})
-                    time.sleep(self.error_delay) 
+                    if json.loads(r.text)["message"] == "Item is no longer in stock.":
+                        self.status_signal.emit({"msg":"Waiting For Restock","status":"normal"})
+                        time.sleep(self.monitor_delay)
+                    else:
+                        self.status_signal.emit({"msg":"Error Loading Cart Items, Got Response: "+str(r.text),"status":"error"})
+                        time.sleep(self.error_delay) 
             except:
                 self.status_signal.emit({"msg":"Error Loading Cart Items (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
@@ -169,7 +173,7 @@ class Walmart:
             "changedFields":[]
         }
         if profile["shipping_a2"] !="":
-            body.append({"addressLineTwo":profile["shipping_a2"]})
+            body.update({"addressLineTwo":profile["shipping_a2"]})
         while True:
             self.status_signal.emit({"msg":"Submitting Shipping Address","status":"normal"})
             try:
@@ -333,7 +337,7 @@ class Walmart:
             try:
                 r = self.session.put("https://www.walmart.com/api/checkout/v3/contract/:PCID/order",json={},headers=headers)
                 try:
-                    json.loads(r.text)["statusCode"]
+                    json.loads(r.text)["order"]
                     self.status_signal.emit({"msg":"Order Placed","status":"success"})
                     return
                 except:
