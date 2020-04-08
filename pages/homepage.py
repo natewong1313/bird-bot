@@ -1,12 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
+from sites.bestbuy import BestBuy
 from utils import get_profile, BirdLogger
 import urllib.request,sys,platform
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
 sys.excepthook = no_abort
 logger = BirdLogger()
-
 class HomePage(QtWidgets.QWidget):
     def __init__(self,parent=None):
         super(HomePage, self).__init__(parent)

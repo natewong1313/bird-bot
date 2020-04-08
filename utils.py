@@ -7,6 +7,7 @@ if platform.system == "Windows":
 else:
     init()
     normal_color = Fore.WHITE if darkdetect.isDark() else Fore.BLACK
+print(normal_color + "Welcome To Bird Bot")
 
 class BirdLogger:
     def ts(self):

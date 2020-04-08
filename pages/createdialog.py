@@ -24,7 +24,6 @@ class CreateDialog(QtWidgets.QDialog):
         self.site_box.setGeometry(QtCore.QRect(50, 20, 151, 21))
         self.site_box.setStyleSheet("outline: 0;border: 1px solid #5D43FB;border-width: 0 0 2px;color: rgb(234, 239, 239);")
         self.site_box.addItem("Site")
-        self.site_box.addItem("Walmart")
         self.site_box.setFont(font)
         self.input_edit = QtWidgets.QLineEdit(self.background)
         self.input_edit.setGeometry(QtCore.QRect(250, 20, 151, 21))
@@ -76,6 +75,9 @@ class CreateDialog(QtWidgets.QDialog):
         self.addtask_btn.setFont(font)
         self.addtask_btn.setStyleSheet("border-radius: 10px;background-color: #5D43FB;color: #FFFFFF;")
         self.addtask_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+
+        self.site_box.addItem("Bestbuy")
+        self.site_box.addItem("Walmart")
 
         QtCore.QMetaObject.connectSlotsByName(CreateDialog)
 
