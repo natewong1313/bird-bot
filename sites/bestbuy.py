@@ -1,5 +1,9 @@
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
+try:
+    from Crypto.PublicKey import RSA
+    from Crypto.Cipher import PKCS1_OAEP
+except:
+    from Cryptodome.PublicKey import RSA
+    from Cryptodome.Cipher import PKCS1_OAEP
 from base64 import b64encode
 import requests,time,lxml.html,json,sys
 
