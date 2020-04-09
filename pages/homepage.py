@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
-from utils import get_profile, BirdLogger
+from utils import get_profile, BirdLogger, return_data, write_data
 import urllib.request,sys,platform
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -11,6 +11,7 @@ class HomePage(QtWidgets.QWidget):
     def __init__(self,parent=None):
         super(HomePage, self).__init__(parent)
         self.setupUi(self)
+        self.load_tasks()
     def setupUi(self, homepage):
         global tasks
         self.tasks = []
@@ -189,6 +190,16 @@ class HomePage(QtWidgets.QWidget):
         self.newtask_btn.setText("New Task")
         QtCore.QMetaObject.connectSlotsByName(homepage)
 
+    def load_tasks(self):
+        tasks_data = return_data("./tasks.json")
+        write_data("./tasks.json",[])
+        for task in tasks_data:
+            self.verticalLayout.takeAt(self.verticalLayout.count()-1)
+            tab = TaskTab(task["site"],task["product"],task["profile"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
+            self.verticalLayout.addWidget(tab)
+            spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+            self.verticalLayout.addItem(spacerItem) 
+
     def start_all_tasks(self):
         for task in self.tasks:
             try:
@@ -217,6 +228,10 @@ class TaskTab(QtWidgets.QWidget):
         self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,monitor_delay,error_delay,max_price
         self.setupUi(self)
         tasks.append(self) 
+        tasks_data = return_data("./tasks.json")
+        task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
+        tasks_data.append(task_data)
+        write_data("./tasks.json",tasks_data)
     def setupUi(self,TaskTab):
         self.running = False
 
@@ -351,6 +366,12 @@ class TaskTab(QtWidgets.QWidget):
     
     def delete(self,event):
         tasks_total_count.setText(str(int(tasks_total_count.text())-1))
+        tasks_data = return_data("./tasks.json")
+        for task in tasks_data:
+            if task["task_id"] == self.task_id:
+                tasks_data.remove(task)
+                break
+        write_data("./tasks.json",tasks_data)
         self.TaskTab.deleteLater()
 
 class TaskThread(QtCore.QThread):
