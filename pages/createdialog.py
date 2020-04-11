@@ -32,11 +32,18 @@ class CreateDialog(QtWidgets.QDialog):
         self.input_edit.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
         self.input_edit.setPlaceholderText("Link")
         self.input_edit.setFont(font)
+        self.input_edit.textEdited.connect(self.autofill)
         self.profile_box = QtWidgets.QComboBox(self.background)
         self.profile_box.setGeometry(QtCore.QRect(450, 20, 151, 21))
         self.profile_box.setStyleSheet("outline: 0;border: 1px solid #5D43FB;border-width: 0 0 2px;color: rgb(234, 239, 239);")
         self.profile_box.addItem("Profile")
         self.profile_box.setFont(font)
+        self.proxies_box = QtWidgets.QComboBox(self.background)
+        self.proxies_box.setGeometry(QtCore.QRect(450, 70, 151, 21))
+        self.proxies_box.setStyleSheet("outline: 0;border: 1px solid #5D43FB;border-width: 0 0 2px;color: rgb(234, 239, 239);")
+        self.proxies_box.addItem("Proxy List")
+        self.proxies_box.addItem("None")
+        self.proxies_box.setFont(font)
         self.monitor_edit = QtWidgets.QLineEdit(self.background)
         self.monitor_edit.setGeometry(QtCore.QRect(50, 70, 61, 21))
         self.monitor_edit.setStyleSheet("outline: 0;border: 1px solid #5D43FB;border-width: 0 0 2px;color: rgb(234, 239, 239);")
@@ -44,6 +51,8 @@ class CreateDialog(QtWidgets.QDialog):
         self.monitor_edit.setPlaceholderText("Monitor")
         self.monitor_edit.setFont(font)
         self.monitor_edit.setText("5.0")
+        self.only_float = QtGui.QDoubleValidator()
+        self.monitor_edit.setValidator(self.only_float)
         self.error_edit = QtWidgets.QLineEdit(self.background)
         self.error_edit.setGeometry(QtCore.QRect(140, 70, 61, 21))
         self.error_edit.setStyleSheet("outline: 0;border: 1px solid #5D43FB;border-width: 0 0 2px;color: rgb(234, 239, 239);")
@@ -51,6 +60,7 @@ class CreateDialog(QtWidgets.QDialog):
         self.error_edit.setPlaceholderText("Error")
         self.error_edit.setFont(font)
         self.error_edit.setText("5.0")
+        self.error_edit.setValidator(self.only_float)
         self.addtask_btn = QtWidgets.QPushButton(self.background)
         self.addtask_btn.setGeometry(QtCore.QRect(250, 110, 151, 32))
         self.addtask_btn.setText("Add Task")
@@ -67,8 +77,9 @@ class CreateDialog(QtWidgets.QDialog):
         self.price_edit.setFont(font)
         self.price_edit.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.price_edit.setStyleSheet("outline: 0;border: 1px solid #5D43FB;border-width: 0 0 2px;color: rgb(234, 239, 239);")
-        self.price_edit.setPlaceholderText("330")
         self.price_edit.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
+        self.only_int = QtGui.QIntValidator()
+        self.price_edit.setValidator(self.only_int)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(14) if platform.system() == "Darwin" else font.setPointSize(14*.75)
@@ -80,5 +91,10 @@ class CreateDialog(QtWidgets.QDialog):
         self.site_box.addItem("Walmart")
 
         QtCore.QMetaObject.connectSlotsByName(CreateDialog)
+    def autofill(self):
+        if "bestbuy" in self.input_edit.text():
+            self.site_box.setCurrentIndex(self.site_box.findText("Bestbuy"))
+        elif "walmart" in self.input_edit.text():
+            self.site_box.setCurrentIndex(self.site_box.findText("Walmart"))
 
 

@@ -2,9 +2,11 @@ from sites.walmart_encryption import walmart_encryption as w_e
 import urllib,requests,time,lxml.html,json,sys
 
 class Walmart:
-    def __init__(self,status_signal,image_signal,product,profile,monitor_delay,error_delay,max_price):
+    def __init__(self,status_signal,image_signal,product,profile,proxy,monitor_delay,error_delay,max_price):
         self.status_signal,self.image_signal,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = status_signal,image_signal,product,profile,float(monitor_delay),float(error_delay),max_price
         self.session = requests.Session()
+        if proxy != False:
+            self.session.proxies.update(proxy)
         self.status_signal.emit({"msg":"Starting","status":"normal"})
         product_image,offer_id = self.monitor()
         self.atc(offer_id)
@@ -52,7 +54,7 @@ class Walmart:
                 else:
                     self.status_signal.emit({"msg":"Product Not Found","status":"normal"})
                     time.sleep(self.monitor_delay)
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Loading Product Page (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
     
@@ -77,7 +79,7 @@ class Walmart:
                 else:
                     self.status_signal.emit({"msg":"Error Adding To Cart","status":"error"})
                     time.sleep(self.error_delay) 
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Adding To Cart (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
 
@@ -112,7 +114,7 @@ class Walmart:
                     else:
                         self.status_signal.emit({"msg":"Error Loading Cart Items, Got Response: "+str(r.text),"status":"error"})
                         time.sleep(self.error_delay) 
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Loading Cart Items (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
 
@@ -141,7 +143,7 @@ class Walmart:
                         pass
                 self.status_signal.emit({"msg":"Error Submitting Shipping Method","status":"error"})
                 time.sleep(self.error_delay)
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Submitting Shipping Method (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
     
@@ -187,7 +189,7 @@ class Walmart:
                         pass
                 self.status_signal.emit({"msg":"Error Submitting Shipping Address","status":"error"})
                 time.sleep(self.error_delay)
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Submitting Shipping Address (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
     
@@ -217,7 +219,7 @@ class Walmart:
                     return card_data, PIE_key_id, PIE_phase
                 self.status_signal.emit({"msg":"Error Getting Checkout Data","status":"error"})
                 time.sleep(self.error_delay)
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Getting Checkout Data (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
     
@@ -262,7 +264,7 @@ class Walmart:
                     return pi_hash
                 self.status_signal.emit({"msg":"Error Submitting Payment","status":"error"})
                 time.sleep(self.error_delay)
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Submitting Payment (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
 
@@ -316,7 +318,7 @@ class Walmart:
                         pass
                 self.status_signal.emit({"msg":"Error Submitting Billing","status":"error"})
                 time.sleep(self.error_delay)
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Submitting Billing (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
     
@@ -343,6 +345,6 @@ class Walmart:
                 except:
                     self.status_signal.emit({"msg":"Payment Failed","status":"error"})
                     return
-            except:
+            except Exception as e:
                 self.status_signal.emit({"msg":"Error Submitting Order (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)

@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
-from utils import get_profile, BirdLogger, return_data, write_data
+from utils import get_profile, get_proxy, BirdLogger, return_data, write_data
 import urllib.request,sys,platform
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -193,12 +193,15 @@ class HomePage(QtWidgets.QWidget):
     def load_tasks(self):
         tasks_data = return_data("./tasks.json")
         write_data("./tasks.json",[])
-        for task in tasks_data:
-            self.verticalLayout.takeAt(self.verticalLayout.count()-1)
-            tab = TaskTab(task["site"],task["product"],task["profile"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
-            self.verticalLayout.addWidget(tab)
-            spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-            self.verticalLayout.addItem(spacerItem) 
+        try:
+            for task in tasks_data:
+                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
+                self.verticalLayout.takeAt(self.verticalLayout.count()-1)
+                self.verticalLayout.addWidget(tab)
+                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                self.verticalLayout.addItem(spacerItem) 
+        except:
+            pass
 
     def start_all_tasks(self):
         for task in self.tasks:
@@ -221,15 +224,15 @@ class HomePage(QtWidgets.QWidget):
                 pass
 
 class TaskTab(QtWidgets.QWidget):
-    def __init__(self,site,product,profile,monitor_delay,error_delay,max_price,parent=None):
+    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,parent=None):
         super(TaskTab, self).__init__(parent)
         self.task_id = str(int(tasks_total_count.text())+1)
         tasks_total_count.setText(self.task_id)
-        self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,monitor_delay,error_delay,max_price
+        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
         self.setupUi(self)
         tasks.append(self) 
         tasks_data = return_data("./tasks.json")
-        task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
+        task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./tasks.json",tasks_data)
     def setupUi(self,TaskTab):
@@ -300,10 +303,13 @@ class TaskTab(QtWidgets.QWidget):
         self.error_delay_label.hide()
         self.max_price_label = QtWidgets.QLabel(self.TaskTab)
         self.max_price_label.hide()
+        self.proxies_label = QtWidgets.QLabel(self.TaskTab)
+        self.proxies_label.hide()
 
         self.id_label.setText(self.task_id)
         self.product_label.setText(self.product)
         self.profile_label.setText(self.profile)
+        self.proxies_label.setText(self.proxies)
         self.status_label.setText("Idle")
         self.site_label.setText(self.site)
         self.monitor_delay_label.setText(self.monitor_delay)
@@ -350,6 +356,7 @@ class TaskTab(QtWidgets.QWidget):
                 self.site_label.text(),
                 self.product_label.text(),
                 self.profile_label.text(),
+                self.proxies_label.text(),
                 self.monitor_delay_label.text(),
                 self.error_delay_label.text(),
                 self.max_price_label.text()
@@ -380,18 +387,21 @@ class TaskThread(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
 
-    def set_data(self,site,product,profile,monitor_delay,error_delay,max_price):
-        self.site,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,monitor_delay,error_delay,max_price
+    def set_data(self,site,product,profile,proxies,monitor_delay,error_delay,max_price):
+        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
     
     def run(self):
-        profile = get_profile(self.profile)
+        profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
         if profile == None:
             self.status_signal.emit({"msg":"Invalid profile","status":"error"})
             return
+        if proxy == None:
+            self.status_signal.emit({"msg":"Invalid profile","status":"error"})
+            return
         if self.site == "Walmart":
-            Walmart(self.status_signal,self.image_signal,self.product,profile,self.monitor_delay,self.error_delay,self.max_price)
+            Walmart(self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay,self.max_price)
         elif self.site == "Bestbuy":
-            BestBuy(self.status_signal,self.image_signal,self.product,profile,self.monitor_delay,self.error_delay)
+            BestBuy(self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay)
 
     def stop(self):
         self.terminate()

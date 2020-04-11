@@ -1,6 +1,6 @@
 from colorama import init, Fore, Back, Style
 from datetime import datetime
-import json, platform, darkdetect
+import json, platform, darkdetect, random
 if platform.system == "Windows":
     init(convert=True)
     normal_color = Fore.WHITE
@@ -36,3 +36,21 @@ def get_profile(profile_name):
         if p["profile_name"] == profile_name:
             return p
     return None
+def get_proxy(list_name):
+    if list_name == "" or list_name == "None":
+        return False
+    proxies = return_data("./proxies.json") 
+    for proxy_list in proxies:
+        if proxy_list["list_name"] == list_name:
+            return format_proxy(random.choice(proxy_list["proxies"].splitlines()))
+    return None
+def format_proxy(proxy):
+    try:
+        proxy_parts = proxy.split(":")
+        ip, port, user, passw = proxy_parts[0], proxy_parts[1], proxy_parts[2], proxy_parts[3]
+        return {
+            "http": "http://{}:{}@{}:{}".format(user, passw, ip, port),
+            "https": "https://{}:{}@{}:{}".format(user, passw, ip, port)
+        }
+    except IndexError:
+        return {"http": "http://" + proxy, "https": "https://" + proxy}
