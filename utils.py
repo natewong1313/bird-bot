@@ -3,15 +3,14 @@ from datetime import datetime
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webhook import DiscordWebhook, DiscordEmbed
+from chromedriver_py import binary_path as driver_path
 import json, platform, darkdetect, random, settings, threading
 if platform.system == "Windows":
     init(convert=True)
     normal_color = Fore.WHITE
-    driver_path = "./chromedriver.exe"
 else:
     init()
     normal_color = Fore.WHITE if darkdetect.isDark() else Fore.BLACK
-    driver_path = "./chromedriver"
 print(normal_color + "Welcome To Bird Bot")
 
 class BirdLogger:
