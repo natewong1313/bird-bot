@@ -72,7 +72,7 @@ def send_webhook(webhook_type,site,profile,task_id,image_url):
         elif webhook_type == "PF":
             if not settings.webhook_on_failed:
                 return
-            embed = DiscordEmbed(title="Payment Failed",color=0x5D43FB)
+            embed = DiscordEmbed(title="Payment Failed",color=0xfc5151)
         embed.set_footer(text="Via Bird Bot",icon_url="https://i.imgur.com/fy26LbM.png")
         embed.add_embed_field(name="Site", value=site,inline=True)
         embed.add_embed_field(name="Profile", value=profile,inline=True)

@@ -3,7 +3,7 @@ from utils import send_webhook, open_browser
 import urllib,requests,time,lxml.html,json,sys,settings
 
 class Walmart:
-    def __init__(self,status_signal,image_signal,product,profile,proxy,monitor_delay,error_delay,max_price):
+    def __init__(self,task_id,status_signal,image_signal,product,profile,proxy,monitor_delay,error_delay,max_price):
         self.task_id,self.status_signal,self.image_signal,self.product,self.profile,self.monitor_delay,self.error_delay,self.max_price = task_id,status_signal,image_signal,product,profile,float(monitor_delay),float(error_delay),max_price
         self.session = requests.Session()
         if proxy != False:
