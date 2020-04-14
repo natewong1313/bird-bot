@@ -5,7 +5,7 @@ except:
     from Cryptodome.PublicKey import RSA
     from Cryptodome.Cipher import PKCS1_OAEP
 from base64 import b64encode
-from utils import send_webhook, open_browser
+from utils import send_webhook
 import requests,time,lxml.html,json,sys,settings
 
 class BestBuy:
@@ -31,8 +31,7 @@ class BestBuy:
                     send_webhook("OP","Bestbuy",self.profile["profile_name"],task_id,product_image)
                 else:
                     if settings.browser_on_failed:
-                        open_browser("https://www.bestbuy.com/checkout/r/fulfillment",self.session.cookies)
-                        self.status_signal.emit({"msg":"Opened Browser","status":"alt"})
+                        self.status_signal.emit({"msg":"Browser Ready","status":"alt","url":"https://www.bestbuy.com/checkout/r/fulfillment","cookies":[{"name":cookie.name,"value":cookie.value,"domain":cookie.domain} for cookie in self.session.cookies]})
                         send_webhook("B","Bestbuy",self.profile["profile_name"],task_id,product_image)
                     else:
                         send_webhook("PF","Bestbuy",self.profile["profile_name"],task_id,product_image)

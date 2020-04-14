@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
-from utils import get_profile, get_proxy, BirdLogger, return_data, write_data
+from utils import get_profile, get_proxy, BirdLogger, return_data, write_data, open_browser
 import urllib.request,sys,platform
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -263,6 +263,13 @@ class TaskTab(QtWidgets.QWidget):
         self.status_label.setGeometry(QtCore.QRect(632, 10, 231, 31))
         self.status_label.setFont(font)
         self.status_label.setStyleSheet("color: rgb(234, 239, 239);")
+        self.browser_label = QtWidgets.QLabel(self.TaskTab)
+        self.browser_label.setGeometry(QtCore.QRect(632, 10, 231, 31))
+        self.browser_label.setFont(font)
+        self.browser_label.setStyleSheet("color: rgb(163, 149, 255);")
+        self.browser_label.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.browser_label.mousePressEvent = self.open_browser
+        self.browser_label.hide()
         self.start_btn = QtWidgets.QLabel(self.TaskTab)
         self.start_btn.setGeometry(QtCore.QRect(870, 15, 16, 16))
         self.start_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
@@ -296,7 +303,7 @@ class TaskTab(QtWidgets.QWidget):
         self.stop_btn.raise_()
         self.product_label.raise_()
         self.profile_label.raise_()
-        self.status_label.raise_()
+        self.browser_label.raise_()
         self.start_btn.raise_()
         self.delete_btn.raise_()
         self.image.raise_()
@@ -315,6 +322,7 @@ class TaskTab(QtWidgets.QWidget):
         self.profile_label.setText(self.profile)
         self.proxies_label.setText(self.proxies)
         self.status_label.setText("Idle")
+        self.browser_label.setText("Click To Open Browser")
         self.site_label.setText(self.site)
         self.monitor_delay_label.setText(self.monitor_delay)
         self.error_delay_label.setText(self.error_delay)
@@ -322,10 +330,17 @@ class TaskTab(QtWidgets.QWidget):
     
     def update_status(self,msg): 
         self.status_label.setText(msg["msg"])
-        if msg["msg"] == "Opened Browser":
-            self.task.stop()
+        if msg["msg"] == "Browser Ready":
+            self.browser_url,self.browser_cookies = msg["url"],msg["cookies"]
             self.running = False
             self.start_btn.raise_()
+            self.browser_label.show()
+            logger.alt(self.task_id,msg["msg"])
+            loop = QtCore.QEventLoop()
+            QtCore.QTimer.singleShot(1000, loop.quit)
+            loop.exec_()
+            self.task.stop()
+            return
         if msg["status"] == "idle":
             self.status_label.setStyleSheet("color: rgb(255, 255, 255);")
             logger.normal(self.task_id,msg["msg"])
@@ -359,6 +374,7 @@ class TaskTab(QtWidgets.QWidget):
     
     def start(self,event):
         if not self.running:
+            self.browser_label.hide()
             self.task = TaskThread()
             self.task.status_signal.connect(self.update_status)
             self.task.image_signal.connect(self.update_image)
@@ -392,6 +408,13 @@ class TaskTab(QtWidgets.QWidget):
         write_data("./data/tasks.json",tasks_data)
         self.TaskTab.deleteLater()
 
+    def open_browser(self,event):
+        self.browser_thread = BrowserThread()
+        self.browser_thread.set_data(
+            self.browser_url,
+            self.browser_cookies
+        )
+        self.browser_thread.start()
 class TaskThread(QtCore.QThread):
     status_signal = QtCore.pyqtSignal("PyQt_PyObject")
     image_signal = QtCore.pyqtSignal("PyQt_PyObject")
@@ -429,4 +452,12 @@ class ImageThread(QtCore.QThread):
         pixmap.loadFromData(data)
         self.finished_signal.emit(pixmap)
 
+class BrowserThread(QtCore.QThread):
+    def __init__(self):
+        QtCore.QThread.__init__(self)
 
+    def set_data(self,url,cookies):
+        self.url,self.cookies = url,cookies
+    def run(self):
+        open_browser(self.url,self.cookies)
+        

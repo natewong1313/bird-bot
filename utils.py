@@ -115,8 +115,8 @@ def start_browser(link,cookies):
     driver.get(link)
     for cookie in cookies:
         driver.add_cookie({
-            "name": cookie.name,
-            "value" : cookie.value,
-            "domain" : cookie.domain
+            "name": cookie["name"],
+            "value" : cookie["value"],
+            "domain" : cookie["domain"]
         })
     driver.get(link)
