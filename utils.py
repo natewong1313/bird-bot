@@ -112,14 +112,11 @@ def start_browser(link,cookies):
                   """
             },
     )
-    try:
-        driver.get(link)
-        for cookie in cookies:
-            driver.add_cookie({
-                "name": cookie.name,
-                "value" : cookie.value,
-                "domain" : cookie.domain
-            })
-        driver.get(link)
-    except:
-        pass
+    driver.get(link)
+    for cookie in cookies:
+        driver.add_cookie({
+            "name": cookie.name,
+            "value" : cookie.value,
+            "domain" : cookie.domain
+        })
+    driver.get(link)
