@@ -92,7 +92,10 @@ def start_browser(link,cookies):
     chrome_options = ChromeOptions()
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
-    driver = Chrome(desired_capabilities=caps, executable_path="./chromedriver", options=chrome_options)
+    if platform.system() == "Darwin":
+        driver = Chrome(desired_capabilities=caps, executable_path="./chromedriver", options=chrome_options)
+    else:
+        driver = Chrome(desired_capabilities=caps, executable_path="./chromedriver.exe", options=chrome_options)
     driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {
