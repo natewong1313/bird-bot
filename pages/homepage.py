@@ -322,6 +322,10 @@ class TaskTab(QtWidgets.QWidget):
     
     def update_status(self,msg): 
         self.status_label.setText(msg["msg"])
+        if msg["msg"] == "Opened Browser":
+            self.task.stop()
+            self.running = False
+            self.start_btn.raise_()
         if msg["status"] == "idle":
             self.status_label.setStyleSheet("color: rgb(255, 255, 255);")
             logger.normal(self.task_id,msg["msg"])

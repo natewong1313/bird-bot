@@ -361,7 +361,7 @@ class Walmart:
     def check_browser(self):
         if settings.browser_on_failed:
             open_browser("https://www.walmart.com/checkout/#/payment",self.session.cookies)
-            self.status_signal.emit({"msg":"Opened Browser","status":"alt"})
             send_webhook("B","Walmart",self.profile["profile_name"],self.task_id,self.product_image)
+            self.status_signal.emit({"msg":"Opened Browser","status":"alt"})
             return True
         return False
