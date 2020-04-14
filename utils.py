@@ -7,9 +7,11 @@ import json, platform, darkdetect, random, settings, threading
 if platform.system == "Windows":
     init(convert=True)
     normal_color = Fore.WHITE
+    driver_path = "./chromedriver.exe"
 else:
     init()
     normal_color = Fore.WHITE if darkdetect.isDark() else Fore.BLACK
+    driver_path = "./chromedriver"
 print(normal_color + "Welcome To Bird Bot")
 
 class BirdLogger:
@@ -93,9 +95,9 @@ def start_browser(link,cookies):
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
     chrome_options.add_experimental_option("useAutomationExtension", False)
     if platform.system() == "Darwin":
-        driver = Chrome(desired_capabilities=caps, executable_path="./chromedriver", options=chrome_options)
+        driver = Chrome(desired_capabilities=caps, executable_path=driver_path, options=chrome_options)
     else:
-        driver = Chrome(desired_capabilities=caps, executable_path="./chromedriver.exe", options=chrome_options)
+        driver = Chrome(desired_capabilities=caps, executable_path=driver_path, options=chrome_options)
     driver.execute_cdp_cmd(
             "Page.addScriptToEvaluateOnNewDocument",
             {
