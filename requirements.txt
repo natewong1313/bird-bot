@@ -4,4 +4,5 @@ requests==2.23.0
 lxml==4.5.0
 darkdetect==0.1.1
 colorama==0.4.3
+Selenium==3.141.0
 pycryptodome==3.4.3

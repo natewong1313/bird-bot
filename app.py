@@ -3,6 +3,7 @@ from pages.homepage import HomePage,TaskTab
 from pages.createdialog import CreateDialog
 from pages.profilespage import ProfilesPage
 from pages.proxiespage import ProxiesPage
+from pages.settingspage import SettingsPage
 import images.images, sys, os
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -63,6 +64,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.proxies_icon.setStyleSheet("border: none;")
         self.proxies_icon.setPixmap(QtGui.QPixmap(":/images/proxies.png"))
         self.proxies_icon.setScaledContents(True)
+        self.settings_tab = QtWidgets.QWidget(self.sidebar)
+        self.settings_tab.setGeometry(QtCore.QRect(0, 220, 60, 45))
+        self.settings_tab.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.settings_tab.setStyleSheet("background-color: transparent;border: none;")
+        self.settings_active_tab = QtWidgets.QWidget(self.settings_tab)
+        self.settings_active_tab.setGeometry(QtCore.QRect(0, 0, 4, 45))
+        self.settings_active_tab.setStyleSheet("background-color: transparent;border: none;")
+        self.settings_icon = QtWidgets.QLabel(self.settings_tab)
+        self.settings_icon.setGeometry(QtCore.QRect(21, 13, 20, 20))
+        self.settings_icon.setStyleSheet("border: none;")
+        self.settings_icon.setPixmap(QtGui.QPixmap(":/images/settings.png"))
+        self.settings_icon.setScaledContents(True)
         self.logo = QtWidgets.QLabel(self.sidebar)
         self.logo.setGeometry(QtCore.QRect(10, 23, 41, 41))
         self.logo.setStyleSheet("border: none;")
@@ -78,6 +91,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.profilespage.hide()
         self.proxiespage = ProxiesPage(self.centralwidget)
         self.proxiespage.hide()
+        self.settingspage = SettingsPage(self.centralwidget)
+        self.settingspage.hide()
         MainWindow.setCentralWidget(self.centralwidget)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.set_functions()
@@ -86,6 +101,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.home_tab.mousePressEvent = lambda event: self.change_page(event,"home")
         self.profiles_tab.mousePressEvent = lambda event: self.change_page(event,"profiles")
         self.proxies_tab.mousePressEvent = lambda event: self.change_page(event,"proxies")
+        self.settings_tab.mousePressEvent = lambda event: self.change_page(event,"settings")
         self.homepage.newtask_btn.clicked.connect(self.createdialog.show)
     
     def change_page(self,event,current_page):
@@ -108,19 +124,20 @@ class MainWindow(QtWidgets.QMainWindow):
         error_delay = self.createdialog.error_edit.text()
         max_price = self.createdialog.price_edit.text() if self.createdialog.maxprice_checkbox.isChecked() else ""
         if site != "Site" and product != "" and profile != "Profile" and monitor_delay != "" and error_delay != "":
-            self.homepage.verticalLayout.takeAt(self.homepage.verticalLayout.count()-1)
-            tab = TaskTab(
-                site,
-                product,
-                profile,
-                proxies,
-                monitor_delay,
-                error_delay,
-                max_price,
-                self.homepage.scrollAreaWidgetContents)
-            self.homepage.verticalLayout.addWidget(tab)
-            spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-            self.homepage.verticalLayout.addItem(spacerItem) 
+            for i in range(self.createdialog.taskcount_spinbox.value()):
+                self.homepage.verticalLayout.takeAt(self.homepage.verticalLayout.count()-1)
+                tab = TaskTab(
+                    site,
+                    product,
+                    profile,
+                    proxies,
+                    monitor_delay,
+                    error_delay,
+                    max_price,
+                    self.homepage.scrollAreaWidgetContents)
+                self.homepage.verticalLayout.addWidget(tab)
+                spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+                self.homepage.verticalLayout.addItem(spacerItem) 
         
 #(.*)
 if __name__ == "__main__":

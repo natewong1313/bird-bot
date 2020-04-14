@@ -57,6 +57,7 @@ class ProxiesPage(QtWidgets.QWidget):
         self.proxies_edit.setFont(font)
         self.proxies_edit.setStyleSheet("color: #FFFFFF;padding: 10px;")
         self.proxies_edit.setPlaceholderText("ip:port or ip:port:user:pass")
+        self.proxies_edit.setAcceptRichText(False)
         self.deleteproxies_btn = QtWidgets.QPushButton(self.proxies_card)
         self.deleteproxies_btn.setGeometry(QtCore.QRect(500, 450, 86, 32))
         self.deleteproxies_btn.setFont(font)
@@ -77,7 +78,7 @@ class ProxiesPage(QtWidgets.QWidget):
         QtCore.QMetaObject.connectSlotsByName(proxiespage)
     
     def set_data(self):
-        proxies = return_data("./proxies.json")
+        proxies = return_data("./data/proxies.json")
         for proxies_list in proxies:
             list_name = proxies_list["list_name"]
             self.loadlist_box.addItem(list_name)
@@ -86,7 +87,7 @@ class ProxiesPage(QtWidgets.QWidget):
     def load_proxies(self):
         list_name = self.loadlist_box.currentText()
         if list_name !="Load Proxies":
-            proxies = return_data("./proxies.json")
+            proxies = return_data("./data/proxies.json")
             for proxies_list in proxies:
                 if proxies_list["list_name"] == list_name:
                     self.listname_edit.setText(list_name)
@@ -104,13 +105,13 @@ class ProxiesPage(QtWidgets.QWidget):
                 "list_name": list_name,
                 "proxies": self.proxies_edit.toPlainText()
             }
-            proxies = return_data("./proxies.json")
+            proxies = return_data("./data/proxies.json")
             for p in proxies:
                 if p["list_name"] == list_name:
                     proxies.remove(p)
                     break
             proxies.append(proxies_data)
-            write_data("./proxies.json",proxies)
+            write_data("./data/proxies.json",proxies)
             if self.loadlist_box.findText(list_name) == -1:
                 self.loadlist_box.addItem(list_name)
                 self.parent().parent().createdialog.proxies_box.addItem(list_name)
@@ -120,12 +121,12 @@ class ProxiesPage(QtWidgets.QWidget):
     
     def delete_proxies(self):
         list_name = self.listname_edit.text()
-        proxies = return_data("./proxies.json")
+        proxies = return_data("./data/proxies.json")
         for p in proxies:
             if p["list_name"] == list_name:
                 proxies.remove(p)
                 break
-        write_data("./proxies.json",proxies)
+        write_data("./data/proxies.json",proxies)
         self.loadlist_box.removeItem(self.loadlist_box.findText(list_name))
         self.parent().parent().createdialog.proxies_box.removeItem(self.parent().parent().createdialog.proxies_box.findText(list_name))
         self.loadlist_box.setCurrentIndex(0)

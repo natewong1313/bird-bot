@@ -5,21 +5,20 @@ except:
     from Cryptodome.PublicKey import RSA
     from Cryptodome.Cipher import PKCS1_OAEP
 from base64 import b64encode
-import requests,time,lxml.html,json,sys
+from utils import send_webhook, open_browser
+import requests,time,lxml.html,json,sys,settings
 
 class BestBuy:
-    def __init__(self,status_signal,image_signal,product,profile,proxy,monitor_delay,error_delay):
+    def __init__(self,task_id,status_signal,image_signal,product,profile,proxy,monitor_delay,error_delay):
         self.status_signal,self.image_signal,self.product,self.profile,self.monitor_delay,self.error_delay = status_signal,image_signal,product,profile,float(monitor_delay),float(error_delay)
         self.session = requests.Session()
         if proxy != False:
             self.session.proxies.update(proxy)
         self.status_signal.emit({"msg":"Starting","status":"normal"})
         tas_data = self.get_tas_data()
-        self.monitor()
+        product_image = self.monitor()
         self.atc()
-        self.load_cart()
-        guest_url = self.start_checkout()
-        self.choose_guest(guest_url)
+        self.start_checkout()
         self.submit_shipping()
         self.submit_payment(tas_data)
         while True:
@@ -28,6 +27,15 @@ class BestBuy:
                 transaction_id = self.handle_3dsecure(jwt)
                 self.submit_card(transaction_id)
             else:
+                if success:
+                    send_webhook("OP","Bestbuy",self.profile["profile_name"],task_id,product_image)
+                else:
+                    if settings.browser_on_failed:
+                        open_browser("https://www.bestbuy.com/checkout/r/fulfillment",self.session.cookies)
+                        self.status_signal.emit({"msg":"Opened Browser","status":"alt"})
+                        send_webhook("B","Bestbuy",self.profile["profile_name"],task_id,product_image)
+                    else:
+                        send_webhook("PF","Bestbuy",self.profile["profile_name"],task_id,product_image)
                 break
     
     def get_tas_data(self):
@@ -71,9 +79,8 @@ class BestBuy:
                         self.image_signal.emit(product_image)
                         image_found = True
                     if self.check_stock():
-                        return
+                        return product_image
                     self.status_signal.emit({"msg":"Waiting For Restock","status":"normal"})
-                    self.session.cookies.clear()
                     time.sleep(self.monitor_delay)
                 else:
                     self.status_signal.emit({"msg":"Product Not Found","status":"normal"})
@@ -84,20 +91,17 @@ class BestBuy:
     
     def check_stock(self):
         headers = {
-            "accept": "*/*",
+            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-            "referer": self.product,
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36",
-            "x-client-id": "FRV",
-            "x-request-id": "BROWSE"
+            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"
         }
         while True:
             self.status_signal.emit({"msg":"Checking Stock","status":"normal"})
             try:
-                url = "https://www.bestbuy.com/fulfillment/shipping/api/v1/fulfillment/sku;skuId={};postalCode={}".format(self.sku_id,self.profile["shipping_zipcode"])
+                url = "https://www.bestbuy.com/api/tcfb/model.json?paths=%5B%5B%22shop%22%2C%22scds%22%2C%22v2%22%2C%22page%22%2C%22tenants%22%2C%22bbypres%22%2C%22pages%22%2C%22globalnavigationv5sv%22%2C%22header%22%5D%2C%5B%22shop%22%2C%22buttonstate%22%2C%22v5%22%2C%22item%22%2C%22skus%22%2C{}%2C%22conditions%22%2C%22NONE%22%2C%22destinationZipCode%22%2C%22%2520%22%2C%22storeId%22%2C%22%2520%22%2C%22context%22%2C%22cyp%22%2C%22addAll%22%2C%22false%22%5D%5D&method=get".format(self.sku_id)
                 r = self.session.get(url,headers=headers)
-                return json.loads(r.text)["responseInfos"][0]["shippingEligible"] == True   
+                return "ADD_TO_CART" in r.text 
             except Exception as e:
                 self.status_signal.emit({"msg":"Error Checking Stock (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
@@ -127,74 +131,29 @@ class BestBuy:
             except Exception as e:
                 self.status_signal.emit({"msg":"Error Adding To Cart (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
-    
-    def load_cart(self):
-        headers={
+
+    def start_checkout(self):
+        headers = {
             "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "accept-encoding": "gzip, deflate, br",
             "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-            "origin": "https://www.bestbuy.com",
-            "referer": self.product,
             "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"
-        }
-        while True:
-            self.status_signal.emit({"msg":"Loading Cart","status":"normal"})
-            try:
-                r = self.session.get("https://www.bestbuy.com/cart",headers=headers)
-                # sloppy code ik LOL
-                r = json.loads(r.text.split("var cartOrderInit = ")[1].split("; </script>")[0])
-                self.order_id = r["id"]
-                self.item_id = r["lineItems"][0]["id"]
-                self.status_signal.emit({"msg":"Loaded Cart","status":"normal"})
-                return
-            except Exception as e:
-                self.status_signal.emit({"msg":"Error Loading Cart (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
-                time.sleep(self.error_delay)
-    
-    def start_checkout(self):
-        headers={
-            "accept": "application/json, text/javascript, */*; q=0.01",
-            "accept-encoding": "gzip, deflate, br",
-            "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-            "content-type": "application/json",
-            "origin": "https://www.bestbuy.com",
-            "referer": "https://www.bestbuy.com/cart",
             "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36",
-            "x-order-id": self.order_id
         }
-        body = None
         while True:
             self.status_signal.emit({"msg":"Starting Checkout","status":"normal"})
             try:
-                r = self.session.post("https://www.bestbuy.com/cart/d/checkout/",json=body,headers=headers)
-                guest_url = json.loads(r.text)["updateData"]["redirectUrl"].replace("signin","guest")
-                self.status_signal.emit({"msg":"Started Checkout","status":"normal"})
-                return guest_url
+                r = self.session.get("https://www.bestbuy.com/checkout/r/fufillment",headers=headers)
+                if r.status_code == 200:
+                    r = json.loads(r.text.split("var orderData = ")[1].split(";")[0])
+                    self.order_id = r["id"]
+                    self.item_id = r["items"][0]["id"]
+                    self.status_signal.emit({"msg":"Started Checkout","status":"normal"})
+                    return
+                self.status_signal.emit({"msg":"Error Starting Checkout","status":"error"})
+                time.sleep(self.error_delay)
             except Exception as e:
                 self.status_signal.emit({"msg":"Error Starting Checkout (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
-                time.sleep(self.error_delay)
-
-    def choose_guest(self,guest_url):
-        headers=  {
-            "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-            "accept-encoding": "gzip, deflate, br",
-            "accept-language": "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7",
-            "referer": guest_url.replace("guest","signin"),
-            "upgrade-insecure-requests": "1",
-            "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.92 Safari/537.36"
-        }
-        while True:
-            self.status_signal.emit({"msg":"Selecting Guest","status":"normal"})
-            try:
-                r = self.session.get(guest_url,headers=headers)
-                if r.status_code == 200:
-                    self.status_signal.emit({"msg":"Selected Guest","status":"normal"})
-                    return
-                self.status_signal.emit({"msg":"Error Selecting Guest","status":"error"})
-                time.sleep(self.error_delay)
-            except Exception as e:
-                self.status_signal.emit({"msg":"Error Selecting Guest (line {} {} {})".format(sys.exc_info()[-1].tb_lineno, type(e).__name__, e),"status":"error"})
                 time.sleep(self.error_delay)
 
     def submit_shipping(self):

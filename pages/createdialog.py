@@ -12,7 +12,7 @@ class CreateDialog(QtWidgets.QDialog):
     def setupUi(self, CreateDialog):
         self.CreateDialog = CreateDialog
         CreateDialog.setFixedSize(647, 164)
-        CreateDialog.setStyleSheet("QComboBox::drop-down {    border: 0px;}QComboBox::down-arrow {    image: url(:/images/down_icon.png);    width: 14px;    height: 14px;}QComboBox{    padding: 1px 0px 1px 3px;}QLineEdit:focus {   border: none;   outline: none;}")
+        CreateDialog.setStyleSheet("QComboBox::drop-down {    border: 0px;}QComboBox::down-arrow {    image: url(:/images/down_icon.png);    width: 14px;    height: 14px;}QComboBox{    padding: 1px 0px 1px 3px;}QLineEdit:focus {   border: none;   outline: none;} QSpinBox::up-button {subcontrol-origin: border;subcontrol-position: top right;width: 8px; border-image: url(:/images/uparrow_icon.png) 1;border-width: 1px;}QSpinBox::down-button {subcontrol-origin: border;subcontrol-position: bottom right;width: 8px;border-image: url(:/images/downarrow_icon.png) 1;border-width: 1px;border-top-width: 0;}")
         CreateDialog.setWindowTitle("Create Tasks")
         self.background = QtWidgets.QWidget(CreateDialog)
         self.background.setGeometry(QtCore.QRect(0, 0, 691, 391))
@@ -86,6 +86,11 @@ class CreateDialog(QtWidgets.QDialog):
         self.addtask_btn.setFont(font)
         self.addtask_btn.setStyleSheet("border-radius: 10px;background-color: #5D43FB;color: #FFFFFF;")
         self.addtask_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.taskcount_spinbox = QtWidgets.QSpinBox(self.background)
+        self.taskcount_spinbox.setGeometry(QtCore.QRect(420, 115, 41, 21))
+        self.taskcount_spinbox.setStyleSheet("border: 1px solid #5D43FB;border-width: 0 0 2px;color: #FFFFFF;")
+        self.taskcount_spinbox.setMinimum(1)
+        self.taskcount_spinbox.setAttribute(QtCore.Qt.WA_MacShowFocusRect, 0)
 
         self.site_box.addItem("Bestbuy")
         self.site_box.addItem("Walmart")

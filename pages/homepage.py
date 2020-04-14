@@ -191,8 +191,8 @@ class HomePage(QtWidgets.QWidget):
         QtCore.QMetaObject.connectSlotsByName(homepage)
 
     def load_tasks(self):
-        tasks_data = return_data("./tasks.json")
-        write_data("./tasks.json",[])
+        tasks_data = return_data("./data/tasks.json")
+        write_data("./data/tasks.json",[])
         try:
             for task in tasks_data:
                 tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
@@ -202,6 +202,10 @@ class HomePage(QtWidgets.QWidget):
                 self.verticalLayout.addItem(spacerItem) 
         except:
             pass
+    
+    def set_settings_data(self,settings_data):
+        global settings
+        settings = settings_data
 
     def start_all_tasks(self):
         for task in self.tasks:
@@ -231,10 +235,10 @@ class TaskTab(QtWidgets.QWidget):
         self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
         self.setupUi(self)
         tasks.append(self) 
-        tasks_data = return_data("./tasks.json")
+        tasks_data = return_data("./data/tasks.json")
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
-        write_data("./tasks.json",tasks_data)
+        write_data("./data/tasks.json",tasks_data)
     def setupUi(self,TaskTab):
         self.running = False
 
@@ -342,17 +346,20 @@ class TaskTab(QtWidgets.QWidget):
             carted_count.setText(str(int(carted_count.text())+1))
     
     def update_image(self,image_url):
-        data = urllib.request.urlopen(image_url).read()
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(data)
+        self.image_thread = ImageThread(image_url)
+        self.image_thread.finished_signal.connect(self.set_image)
+        self.image_thread.start()
+    
+    def set_image(self,pixmap):
         self.image.setPixmap(pixmap)
-        
+    
     def start(self,event):
         if not self.running:
             self.task = TaskThread()
             self.task.status_signal.connect(self.update_status)
             self.task.image_signal.connect(self.update_image)
             self.task.set_data(
+                self.task_id,
                 self.site_label.text(),
                 self.product_label.text(),
                 self.profile_label.text(),
@@ -373,12 +380,12 @@ class TaskTab(QtWidgets.QWidget):
     
     def delete(self,event):
         tasks_total_count.setText(str(int(tasks_total_count.text())-1))
-        tasks_data = return_data("./tasks.json")
+        tasks_data = return_data("./data/tasks.json")
         for task in tasks_data:
             if task["task_id"] == self.task_id:
                 tasks_data.remove(task)
                 break
-        write_data("./tasks.json",tasks_data)
+        write_data("./data/tasks.json",tasks_data)
         self.TaskTab.deleteLater()
 
 class TaskThread(QtCore.QThread):
@@ -387,8 +394,8 @@ class TaskThread(QtCore.QThread):
     def __init__(self):
         QtCore.QThread.__init__(self)
 
-    def set_data(self,site,product,profile,proxies,monitor_delay,error_delay,max_price):
-        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
+    def set_data(self,task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price):
+        self.task_id,self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price
     
     def run(self):
         profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
@@ -396,12 +403,26 @@ class TaskThread(QtCore.QThread):
             self.status_signal.emit({"msg":"Invalid profile","status":"error"})
             return
         if proxy == None:
-            self.status_signal.emit({"msg":"Invalid profile","status":"error"})
+            self.status_signal.emit({"msg":"Invalid proxy list","status":"error"})
             return
         if self.site == "Walmart":
-            Walmart(self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay,self.max_price)
+            Walmart(self.task_id,self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay,self.max_price)
         elif self.site == "Bestbuy":
-            BestBuy(self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay)
+            BestBuy(self.task_id,self.status_signal,self.image_signal,self.product,profile,proxy,self.monitor_delay,self.error_delay)
 
     def stop(self):
         self.terminate()
+
+class ImageThread(QtCore.QThread):
+    finished_signal = QtCore.pyqtSignal("PyQt_PyObject")
+    def __init__(self,image_url):
+        self.image_url = image_url
+        QtCore.QThread.__init__(self)
+
+    def run(self):
+        data = urllib.request.urlopen(self.image_url).read()
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
+        self.finished_signal.emit(pixmap)
+
+
