@@ -5,7 +5,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webhook import DiscordWebhook, DiscordEmbed
 from chromedriver_py import binary_path as driver_path
 import json, platform, darkdetect, random, settings, threading
-if platform.system == "Windows":
+if platform.system() == "Windows":
     init(convert=True)
     normal_color = Fore.WHITE
 else:
