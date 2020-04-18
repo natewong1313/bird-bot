@@ -9,7 +9,7 @@ class SettingsPage(QtWidgets.QWidget):
     def __init__(self,parent=None):
         super(SettingsPage, self).__init__(parent)
         self.setupUi(self)
-    def setupUi(self, settingspage):        
+    def setupUi(self, settingspage):
         self.settingspage = settingspage
         self.settingspage.setAttribute(QtCore.Qt.WA_StyledBackground, True)
         self.settingspage.setGeometry(QtCore.QRect(60, 0, 1041, 601))
@@ -71,6 +71,10 @@ class SettingsPage(QtWidgets.QWidget):
         self.onfailed_checkbox.setGeometry(QtCore.QRect(30, 220, 221, 20))
         self.onfailed_checkbox.setStyleSheet("color: #FFFFFF;border: none;")
         self.onfailed_checkbox.setText("Open browser on payment failed")
+        self.buy_one_checkbox = QtWidgets.QCheckBox(self.settings_card)
+        self.buy_one_checkbox.setGeometry(QtCore.QRect(30, 250, 221, 20))
+        self.buy_one_checkbox.setStyleSheet("color: #FFFFFF;border: none;")
+        self.buy_one_checkbox.setText("Stop All after success")
         self.proxies_header = QtWidgets.QLabel(self.settingspage)
         self.proxies_header.setGeometry(QtCore.QRect(30, 10, 81, 31))
         font = QtGui.QFont()
@@ -82,7 +86,7 @@ class SettingsPage(QtWidgets.QWidget):
         self.proxies_header.setText("Settings")
         self.set_data()
         QtCore.QMetaObject.connectSlotsByName(settingspage)
-    
+
     def set_data(self):
         settings = return_data("./data/settings.json")
         self.webhook_edit.setText(settings["webhook"])
@@ -94,31 +98,33 @@ class SettingsPage(QtWidgets.QWidget):
             self.paymentfailed_checkbox.setChecked(True)
         if settings["browseronfailed"]:
             self.onfailed_checkbox.setChecked(True)
+        if settings['onlybuyone']:
+            self.buy_one_checkbox.setChecked(True)
         self.update_settings(settings)
-    
+
     def save_settings(self):
         settings = {"webhook":self.webhook_edit.text(),
                     "webhookonbrowser":self.browser_checkbox.isChecked(),
                     "webhookonorder":self.order_checkbox.isChecked(),
                     "webhookonfailed":self.paymentfailed_checkbox.isChecked(),
-                    "browseronfailed":self.onfailed_checkbox.isChecked()}
+                    "browseronfailed":self.onfailed_checkbox.isChecked(),
+                    'onlybuyone':self.buy_one_checkbox.isChecked()}
         write_data("./data/settings.json",settings)
         self.update_settings(settings)
         QtWidgets.QMessageBox.information(self, "Bird Bot", "Saved Settings")
 
     def update_settings(self,settings_data):
         global webhook, webhook_on_browser, webhook_on_order, webhook_on_failed, browser_on_failed
-        settings.webhook, settings.webhook_on_browser, settings.webhook_on_order, settings.webhook_on_failed, settings.browser_on_failed = settings_data["webhook"], settings_data["webhookonbrowser"], settings_data["webhookonorder"], settings_data["webhookonfailed"], settings_data["browseronfailed"]
+        settings.webhook, settings.webhook_on_browser, settings.webhook_on_order, settings.webhook_on_failed, settings.browser_on_failed, settings.buy_one = settings_data["webhook"], settings_data["webhookonbrowser"], settings_data["webhookonorder"], settings_data["webhookonfailed"], settings_data["browseronfailed"], settings_data['onlybuyone']
 
 
 
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+

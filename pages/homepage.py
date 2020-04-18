@@ -3,6 +3,7 @@ from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
 from utils import get_profile, get_proxy, BirdLogger, return_data, write_data, open_browser
 import urllib.request,sys,platform
+import settings
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
 sys.excepthook = no_abort
@@ -229,7 +230,7 @@ class HomePage(QtWidgets.QWidget):
                 pass
 
 class TaskTab(QtWidgets.QWidget):
-    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,parent=None):
+    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,parent=None,settings=None):
         super(TaskTab, self).__init__(parent)
         self.task_id = str(int(tasks_total_count.text())+1)
         tasks_total_count.setText(self.task_id)
@@ -362,13 +363,15 @@ class TaskTab(QtWidgets.QWidget):
             logger.success(self.task_id,msg["msg"])
             self.running = False
             self.start_btn.raise_()
-            self.stop_all()
+            if settings.buy_one:
+                self.stop_all()
             checkouts_count.setText(str(int(checkouts_count.text())+1))
         elif msg["status"] == "carted":
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
             logger.alt(self.task_id,msg["msg"])
             carted_count.setText(str(int(carted_count.text())+1))
-    
+
+
     def update_image(self,image_url):
         self.image_thread = ImageThread(image_url)
         self.image_thread.finished_signal.connect(self.set_image)
