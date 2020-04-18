@@ -196,8 +196,7 @@ class HomePage(QtWidgets.QWidget):
         write_data("./data/tasks.json",[])
         try:
             for task in tasks_data:
-                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
-                tab.set_stop_all(self.stop_all_tasks)
+                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.stop_all_tasks,self.scrollAreaWidgetContents)
                 self.verticalLayout.takeAt(self.verticalLayout.count()-1)
                 self.verticalLayout.addWidget(tab)
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -230,20 +229,17 @@ class HomePage(QtWidgets.QWidget):
                 pass
 
 class TaskTab(QtWidgets.QWidget):
-    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,parent=None,settings=None):
+    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,stop_all,parent=None):
         super(TaskTab, self).__init__(parent)
         self.task_id = str(int(tasks_total_count.text())+1)
         tasks_total_count.setText(self.task_id)
-        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
+        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price,self.stop_all = site,product,profile,proxies,monitor_delay,error_delay,max_price,stop_all
         self.setupUi(self)
         tasks.append(self) 
         tasks_data = return_data("./data/tasks.json")
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
-        self.stop_all = None
-    def set_stop_all(self, func):
-        self.stop_all = func
     def setupUi(self,TaskTab):
         self.running = False
 

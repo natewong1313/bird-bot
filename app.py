@@ -134,6 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     monitor_delay,
                     error_delay,
                     max_price,
+                    self.homepage.stop_all_tasks,
                     self.homepage.scrollAreaWidgetContents)
                 self.homepage.verticalLayout.addWidget(tab)
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
