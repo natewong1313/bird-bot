@@ -196,6 +196,7 @@ class HomePage(QtWidgets.QWidget):
         try:
             for task in tasks_data:
                 tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
+                tab.set_stop_all(self.stop_all_tasks)
                 self.verticalLayout.takeAt(self.verticalLayout.count()-1)
                 self.verticalLayout.addWidget(tab)
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -239,6 +240,9 @@ class TaskTab(QtWidgets.QWidget):
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
+        self.stop_all = None
+    def set_stop_all(self, func):
+        self.stop_all = func
     def setupUi(self,TaskTab):
         self.running = False
 
@@ -358,6 +362,7 @@ class TaskTab(QtWidgets.QWidget):
             logger.success(self.task_id,msg["msg"])
             self.running = False
             self.start_btn.raise_()
+            self.stop_all()
             checkouts_count.setText(str(int(checkouts_count.text())+1))
         elif msg["status"] == "carted":
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
@@ -423,7 +428,10 @@ class TaskThread(QtCore.QThread):
 
     def set_data(self,task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price):
         self.task_id,self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price
-    
+
+    def set_stop_all(self, stop_all_func):
+        self.stop_all = stop_all_func
+
     def run(self):
         profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
         if profile == None:
