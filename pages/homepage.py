@@ -428,9 +428,6 @@ class TaskThread(QtCore.QThread):
     def set_data(self,task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price):
         self.task_id,self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price
 
-    def set_stop_all(self, stop_all_func):
-        self.stop_all = stop_all_func
-
     def run(self):
         profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
         if profile == None:
