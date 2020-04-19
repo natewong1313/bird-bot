@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
+from pages.createdialog import CreateDialog
 from utils import get_profile, get_proxy, BirdLogger, return_data, write_data, open_browser
 import urllib.request,sys,platform
 def no_abort(a, b, c):
@@ -199,10 +200,10 @@ class HomePage(QtWidgets.QWidget):
                 self.verticalLayout.takeAt(self.verticalLayout.count()-1)
                 self.verticalLayout.addWidget(tab)
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-                self.verticalLayout.addItem(spacerItem) 
+                self.verticalLayout.addItem(spacerItem)
         except:
             pass
-    
+
     def set_settings_data(self,settings_data):
         global settings
         settings = settings_data
@@ -219,7 +220,7 @@ class HomePage(QtWidgets.QWidget):
                 task.stop(None)
             except:
                 pass
-    
+
     def delete_all_tasks(self):
         for task in self.tasks:
             try:
@@ -234,7 +235,7 @@ class TaskTab(QtWidgets.QWidget):
         tasks_total_count.setText(self.task_id)
         self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
         self.setupUi(self)
-        tasks.append(self) 
+        tasks.append(self)
         tasks_data = return_data("./data/tasks.json")
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
@@ -288,6 +289,12 @@ class TaskTab(QtWidgets.QWidget):
         self.delete_btn.setPixmap(QtGui.QPixmap(":/images/trash.png"))
         self.delete_btn.setScaledContents(True)
         self.delete_btn.mousePressEvent = self.delete
+        self.edit_btn = QtWidgets.QLabel(self.TaskTab)
+        self.edit_btn.setGeometry(QtCore.QRect(920, 15, 16, 16))
+        self.edit_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
+        self.edit_btn.setPixmap(QtGui.QPixmap(":/images/edit.png"))
+        self.edit_btn.setScaledContents(True)
+        self.edit_btn.mousePressEvent = self.edit
         self.image = QtWidgets.QLabel(self.TaskTab)
         self.image.setGeometry(QtCore.QRect(20, 0, 50, 50))
         self.image.setPixmap(QtGui.QPixmap(":/images/no_image.png"))
@@ -327,8 +334,8 @@ class TaskTab(QtWidgets.QWidget):
         self.monitor_delay_label.setText(self.monitor_delay)
         self.error_delay_label.setText(self.error_delay)
         self.max_price_label.setText(self.max_price)
-    
-    def update_status(self,msg): 
+
+    def update_status(self,msg):
         self.status_label.setText(msg["msg"])
         if msg["msg"] == "Browser Ready":
             self.browser_url,self.browser_cookies = msg["url"],msg["cookies"]
@@ -363,15 +370,15 @@ class TaskTab(QtWidgets.QWidget):
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
             logger.alt(self.task_id,msg["msg"])
             carted_count.setText(str(int(carted_count.text())+1))
-    
+
     def update_image(self,image_url):
         self.image_thread = ImageThread(image_url)
         self.image_thread.finished_signal.connect(self.set_image)
         self.image_thread.start()
-    
+
     def set_image(self,pixmap):
         self.image.setPixmap(pixmap)
-    
+
     def start(self,event):
         if not self.running:
             self.browser_label.hide()
@@ -391,21 +398,45 @@ class TaskTab(QtWidgets.QWidget):
             self.task.start()
             self.running = True
             self.stop_btn.raise_()
-    
+
     def stop(self,event):
         self.task.stop()
         self.running = False
         self.update_status({"msg":"Stopped","status":"idle"})
         self.start_btn.raise_()
-    
-    def delete(self,event):
+
+    def edit(self,event):
         tasks_total_count.setText(str(int(tasks_total_count.text())-1))
+        self.edit_dialog = CreateDialog()
+        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
+        self.edit_dialog.load_data(self)
+
+    def update_task(self):
+        self.site_label.setText(self.edit_dialog.site_box.currentText())
+        self.product_label.setText(self.edit_dialog.input_edit.text())
+        self.profile_label.setText(self.edit_dialog.profile_box.currentText())
+        self.proxies_label.setText(self.edit_dialog.proxies_box.currentText())
+        self.monitor_delay_label.setText(self.edit_dialog.monitor_edit.text())
+        self.error_delay_label.setText(self.edit_dialog.error_edit.text())
+        self.max_price_label.setText(self.edit_dialog.price_edit.text())
+        self.delete_json()
+        tasks_data = return_data("./data/tasks.json")
+        task_data = {"task_id": self.task_id,"site":self.site_label.text(),"product": self.product_label.text(),"profile": self.profile_label.text(),"proxies": self.profile_label.text(),"monitor_delay": self.monitor_delay_label.text(),"error_delay": self.error_delay_label.text(),"max_price": self.max_price_label.text()}
+        tasks_data.append(task_data)
+        write_data("./data/tasks.json",tasks_data)
+        self.edit_dialog.close()
+
+    def delete_json(self):
+        tasks_total_count.setText(str(int(tasks_total_count.text()) - 1))
         tasks_data = return_data("./data/tasks.json")
         for task in tasks_data:
             if task["task_id"] == self.task_id:
                 tasks_data.remove(task)
                 break
-        write_data("./data/tasks.json",tasks_data)
+        write_data("./data/tasks.json", tasks_data)
+
+    def delete(self,event):
+        self.delete_json()
         self.TaskTab.deleteLater()
 
     def open_browser(self,event):
@@ -423,7 +454,7 @@ class TaskThread(QtCore.QThread):
 
     def set_data(self,task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price):
         self.task_id,self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price
-    
+
     def run(self):
         profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
         if profile == None:
@@ -460,4 +491,4 @@ class BrowserThread(QtCore.QThread):
         self.url,self.cookies = url,cookies
     def run(self):
         open_browser(self.url,self.cookies)
-        
+

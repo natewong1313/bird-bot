@@ -102,4 +102,11 @@ class CreateDialog(QtWidgets.QDialog):
         elif "walmart" in self.input_edit.text():
             self.site_box.setCurrentIndex(self.site_box.findText("Walmart"))
 
+    def load_data(self, task_tab):
+        self.site_box.setCurrentText(task_tab.site)
+        self.input_edit.setText(task_tab.product)
+        self.profile_box.setCurrentText(task_tab.profile)
+        self.price_edit.setText(task_tab.max_price)
+        self.addtask_btn.setText('Edit Task')
+
 
