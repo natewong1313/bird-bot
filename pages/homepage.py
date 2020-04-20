@@ -3,6 +3,7 @@ from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
 from utils import get_profile, get_proxy, BirdLogger, return_data, write_data, open_browser
 import urllib.request,sys,platform
+import settings
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
 sys.excepthook = no_abort
@@ -195,7 +196,7 @@ class HomePage(QtWidgets.QWidget):
         write_data("./data/tasks.json",[])
         try:
             for task in tasks_data:
-                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.scrollAreaWidgetContents)
+                tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.stop_all_tasks,self.scrollAreaWidgetContents)
                 self.verticalLayout.takeAt(self.verticalLayout.count()-1)
                 self.verticalLayout.addWidget(tab)
                 spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -228,11 +229,11 @@ class HomePage(QtWidgets.QWidget):
                 pass
 
 class TaskTab(QtWidgets.QWidget):
-    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,parent=None):
+    def __init__(self,site,product,profile,proxies,monitor_delay,error_delay,max_price,stop_all,parent=None):
         super(TaskTab, self).__init__(parent)
         self.task_id = str(int(tasks_total_count.text())+1)
         tasks_total_count.setText(self.task_id)
-        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = site,product,profile,proxies,monitor_delay,error_delay,max_price
+        self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price,self.stop_all = site,product,profile,proxies,monitor_delay,error_delay,max_price,stop_all
         self.setupUi(self)
         tasks.append(self) 
         tasks_data = return_data("./data/tasks.json")
@@ -358,12 +359,15 @@ class TaskTab(QtWidgets.QWidget):
             logger.success(self.task_id,msg["msg"])
             self.running = False
             self.start_btn.raise_()
+            if settings.buy_one:
+                self.stop_all()
             checkouts_count.setText(str(int(checkouts_count.text())+1))
         elif msg["status"] == "carted":
             self.status_label.setStyleSheet("color: rgb(163, 149, 255);")
             logger.alt(self.task_id,msg["msg"])
             carted_count.setText(str(int(carted_count.text())+1))
-    
+
+
     def update_image(self,image_url):
         self.image_thread = ImageThread(image_url)
         self.image_thread.finished_signal.connect(self.set_image)
@@ -423,7 +427,7 @@ class TaskThread(QtCore.QThread):
 
     def set_data(self,task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price):
         self.task_id,self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price = task_id,site,product,profile,proxies,monitor_delay,error_delay,max_price
-    
+
     def run(self):
         profile,proxy = get_profile(self.profile),get_proxy(self.proxies)
         if profile == None:
