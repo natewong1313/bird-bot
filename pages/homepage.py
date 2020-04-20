@@ -191,6 +191,9 @@ class HomePage(QtWidgets.QWidget):
         self.newtask_btn.setText("New Task")
         QtCore.QMetaObject.connectSlotsByName(homepage)
 
+        self.edit_dialog = CreateDialog()
+        self.edit_dialog.hide()
+
     def load_tasks(self):
         tasks_data = return_data("./data/tasks.json")
         write_data("./data/tasks.json",[])
@@ -240,6 +243,7 @@ class TaskTab(QtWidgets.QWidget):
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
+
     def setupUi(self,TaskTab):
         self.running = False
 
@@ -335,6 +339,10 @@ class TaskTab(QtWidgets.QWidget):
         self.error_delay_label.setText(self.error_delay)
         self.max_price_label.setText(self.max_price)
 
+        self.edit_dialog = self.parent().parent().parent().parent().parent().edit_dialog
+
+        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
+
     def update_status(self,msg):
         self.status_label.setText(msg["msg"])
         if msg["msg"] == "Browser Ready":
@@ -406,10 +414,8 @@ class TaskTab(QtWidgets.QWidget):
         self.start_btn.raise_()
 
     def edit(self,event):
-        tasks_total_count.setText(str(int(tasks_total_count.text())-1))
-        self.edit_dialog = CreateDialog()
-        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
         self.edit_dialog.load_data(self)
+        self.edit_dialog.show()
 
     def update_task(self):
         self.site_label.setText(self.edit_dialog.site_box.currentText())
@@ -427,7 +433,6 @@ class TaskTab(QtWidgets.QWidget):
         self.edit_dialog.close()
 
     def delete_json(self):
-        tasks_total_count.setText(str(int(tasks_total_count.text()) - 1))
         tasks_data = return_data("./data/tasks.json")
         for task in tasks_data:
             if task["task_id"] == self.task_id:
@@ -436,6 +441,7 @@ class TaskTab(QtWidgets.QWidget):
         write_data("./data/tasks.json", tasks_data)
 
     def delete(self,event):
+        tasks_total_count.setText(str(int(tasks_total_count.text()) - 1))
         self.delete_json()
         self.TaskTab.deleteLater()
 

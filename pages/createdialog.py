@@ -105,8 +105,11 @@ class CreateDialog(QtWidgets.QDialog):
     def load_data(self, task_tab):
         self.site_box.setCurrentText(task_tab.site)
         self.input_edit.setText(task_tab.product)
-        self.profile_box.setCurrentText(task_tab.profile)
+        # self.profile_box.setCurrentText(task_tab.profile)
+        self.monitor_edit.setText(task_tab.monitor_delay)
+        self.error_edit.setText(task_tab.error_delay)
         self.price_edit.setText(task_tab.max_price)
+        # self.maxprice_checkbox.setChecked(task_tab.)
         self.addtask_btn.setText('Edit Task')
 
 
