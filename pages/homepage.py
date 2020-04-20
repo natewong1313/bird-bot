@@ -325,10 +325,6 @@ class TaskTab(QtWidgets.QWidget):
         self.proxies_label.hide()
         self.load_labels()
 
-        self.edit_dialog = CreateDialog()
-        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
-        self.edit_dialog.taskcount_spinbox.hide()
-        self.edit_dialog.hide()
 
     def load_labels(self):
         self.id_label.setText(self.task_id)
@@ -413,6 +409,9 @@ class TaskTab(QtWidgets.QWidget):
         self.start_btn.raise_()
 
     def edit(self,event):
+        self.edit_dialog = CreateDialog()
+        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
+        self.edit_dialog.taskcount_spinbox.hide()
         self.edit_dialog.profile_box.clear()
         self.edit_dialog.proxies_box.clear()
         profile_combobox = self.parent().parent().parent().parent().parent().parent().parent().createdialog.profile_box
@@ -440,7 +439,7 @@ class TaskTab(QtWidgets.QWidget):
                      "max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
-        self.edit_dialog.hide()
+        self.edit_dialog.deleteLater()
 
     def delete_json(self):
         tasks_data = return_data("./data/tasks.json")
