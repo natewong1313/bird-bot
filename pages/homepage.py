@@ -285,13 +285,13 @@ class TaskTab(QtWidgets.QWidget):
         self.stop_btn.setScaledContents(True)
         self.stop_btn.mousePressEvent = self.stop
         self.delete_btn = QtWidgets.QLabel(self.TaskTab)
-        self.delete_btn.setGeometry(QtCore.QRect(895, 15, 16, 16))
+        self.delete_btn.setGeometry(QtCore.QRect(920, 15, 16, 16))
         self.delete_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.delete_btn.setPixmap(QtGui.QPixmap(":/images/trash.png"))
         self.delete_btn.setScaledContents(True)
         self.delete_btn.mousePressEvent = self.delete
         self.edit_btn = QtWidgets.QLabel(self.TaskTab)
-        self.edit_btn.setGeometry(QtCore.QRect(920, 15, 16, 16))
+        self.edit_btn.setGeometry(QtCore.QRect(895, 15, 16, 16))
         self.edit_btn.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
         self.edit_btn.setPixmap(QtGui.QPixmap(":/images/edit.png"))
         self.edit_btn.setScaledContents(True)
