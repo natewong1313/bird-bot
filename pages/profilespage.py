@@ -275,7 +275,6 @@ class ProfilesPage(QtWidgets.QWidget):
             profile_name = profile["profile_name"]
             self.loadprofile_box.addItem(profile_name)
             self.parent().parent().createdialog.profile_box.addItem(profile_name)
-            self.parent().parent().homepage.edit_dialog.profile_box.addItem(profile_name)
     
     def same_shipping_checkbox_clicked(self):
         if self.same_shipping_checkbox.isChecked():
@@ -362,7 +361,6 @@ class ProfilesPage(QtWidgets.QWidget):
         if self.loadprofile_box.findText(profile_name) == -1:
             self.loadprofile_box.addItem(profile_name)
             self.parent().parent().createdialog.profile_box.addItem(profile_name)
-            self.parent().parent().homepage.edit_dialog.profile_box.addItem(profile_name)
         QtWidgets.QMessageBox.information(self, "Bird Bot", "Saved Profile")
     
     def delete_profile(self):
@@ -375,7 +373,6 @@ class ProfilesPage(QtWidgets.QWidget):
         write_data("./data/profiles.json",profiles)
         self.loadprofile_box.removeItem(self.loadprofile_box.findText(profile_name))
         self.parent().parent().createdialog.profile_box.removeItem(self.parent().parent().createdialog.profile_box.findText(profile_name))
-        self.parent().parent().homepage.edit_dialog.profile_box.addItem(self.parent().parent().createdialog.profile_box.findText(profile_name))
 
         self.loadprofile_box.setCurrentIndex(0)
         self.profilename_edit.setText("")

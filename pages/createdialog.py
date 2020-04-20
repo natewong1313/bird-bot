@@ -7,7 +7,7 @@ sys.excepthook = no_abort
 class CreateDialog(QtWidgets.QDialog):
     def __init__(self,parent=None):
         super(CreateDialog, self).__init__(parent)
-        self.setupUi(self) 
+        self.setupUi(self)
         self.show()
     def setupUi(self, CreateDialog):
         self.CreateDialog = CreateDialog
@@ -105,11 +105,12 @@ class CreateDialog(QtWidgets.QDialog):
     def load_data(self, task_tab):
         self.site_box.setCurrentText(task_tab.site)
         self.input_edit.setText(task_tab.product)
-        # self.profile_box.setCurrentText(task_tab.profile)
+        self.profile_box.setCurrentText(task_tab.profile)
+        self.proxies_box.setCurrentText(task_tab.proxies)
         self.monitor_edit.setText(task_tab.monitor_delay)
         self.error_edit.setText(task_tab.error_delay)
         self.price_edit.setText(task_tab.max_price)
-        # self.maxprice_checkbox.setChecked(task_tab.)
+        self.maxprice_checkbox.setChecked(task_tab.max_price is not '')
         self.addtask_btn.setText('Edit Task')
 
 

@@ -191,9 +191,6 @@ class HomePage(QtWidgets.QWidget):
         self.newtask_btn.setText("New Task")
         QtCore.QMetaObject.connectSlotsByName(homepage)
 
-        self.edit_dialog = CreateDialog()
-        self.edit_dialog.hide()
-
     def load_tasks(self):
         tasks_data = return_data("./data/tasks.json")
         write_data("./data/tasks.json",[])
@@ -243,7 +240,6 @@ class TaskTab(QtWidgets.QWidget):
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
-
     def setupUi(self,TaskTab):
         self.running = False
 
@@ -327,7 +323,13 @@ class TaskTab(QtWidgets.QWidget):
         self.max_price_label.hide()
         self.proxies_label = QtWidgets.QLabel(self.TaskTab)
         self.proxies_label.hide()
+        self.load_labels()
 
+        self.edit_dialog = CreateDialog()
+        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
+        self.edit_dialog.hide()
+
+    def load_labels(self):
         self.id_label.setText(self.task_id)
         self.product_label.setText(self.product)
         self.profile_label.setText(self.profile)
@@ -338,10 +340,6 @@ class TaskTab(QtWidgets.QWidget):
         self.monitor_delay_label.setText(self.monitor_delay)
         self.error_delay_label.setText(self.error_delay)
         self.max_price_label.setText(self.max_price)
-
-        self.edit_dialog = self.parent().parent().parent().parent().parent().edit_dialog
-
-        self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
 
     def update_status(self,msg):
         self.status_label.setText(msg["msg"])
@@ -414,23 +412,34 @@ class TaskTab(QtWidgets.QWidget):
         self.start_btn.raise_()
 
     def edit(self,event):
+        self.edit_dialog.profile_box.clear()
+        self.edit_dialog.proxies_box.clear()
+        profile_combobox = self.parent().parent().parent().parent().parent().parent().parent().createdialog.profile_box
+        for profile in [profile_combobox.itemText(i) for i in range(profile_combobox.count())]:
+            self.edit_dialog.profile_box.addItem(profile)
+        proxies_combobox = self.parent().parent().parent().parent().parent().parent().parent().createdialog.proxies_box
+        for proxy in [proxies_combobox.itemText(i) for i in range(proxies_combobox.count())]:
+            self.edit_dialog.proxies_box.addItem(proxy)
         self.edit_dialog.load_data(self)
         self.edit_dialog.show()
 
     def update_task(self):
-        self.site_label.setText(self.edit_dialog.site_box.currentText())
-        self.product_label.setText(self.edit_dialog.input_edit.text())
-        self.profile_label.setText(self.edit_dialog.profile_box.currentText())
-        self.proxies_label.setText(self.edit_dialog.proxies_box.currentText())
-        self.monitor_delay_label.setText(self.edit_dialog.monitor_edit.text())
-        self.error_delay_label.setText(self.edit_dialog.error_edit.text())
-        self.max_price_label.setText(self.edit_dialog.price_edit.text())
+        self.site=self.edit_dialog.site_box.currentText()
+        self.product=self.edit_dialog.input_edit.text()
+        self.profile=self.edit_dialog.profile_box.currentText()
+        self.proxies=self.edit_dialog.proxies_box.currentText()
+        self.monitor_delay=self.edit_dialog.monitor_edit.text()
+        self.error_delay = self.edit_dialog.error_edit.text()
+        self.max_price = self.edit_dialog.price_edit.text()
+        self.load_labels()
         self.delete_json()
         tasks_data = return_data("./data/tasks.json")
-        task_data = {"task_id": self.task_id,"site":self.site_label.text(),"product": self.product_label.text(),"profile": self.profile_label.text(),"proxies": self.profile_label.text(),"monitor_delay": self.monitor_delay_label.text(),"error_delay": self.error_delay_label.text(),"max_price": self.max_price_label.text()}
+        task_data = {"task_id": self.task_id, "site": self.site, "product": self.product, "profile": self.profile,
+                     "proxies": self.proxies, "monitor_delay": self.monitor_delay, "error_delay": self.error_delay,
+                     "max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
-        self.edit_dialog.close()
+        self.edit_dialog.hide()
 
     def delete_json(self):
         tasks_data = return_data("./data/tasks.json")
