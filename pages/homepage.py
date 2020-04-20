@@ -327,6 +327,7 @@ class TaskTab(QtWidgets.QWidget):
 
         self.edit_dialog = CreateDialog()
         self.edit_dialog.addtask_btn.clicked.connect(self.update_task)
+        self.edit_dialog.taskcount_spinbox.hide()
         self.edit_dialog.hide()
 
     def load_labels(self):
