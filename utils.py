@@ -10,7 +10,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webhook import DiscordWebhook, DiscordEmbed
 from chromedriver_py import binary_path as driver_path
-import json, platform, darkdetect, random, settings, threading, hashlib, base64
+import json, platform, darkdetect, random, settings, threading, hashlib, base64, os
 normal_color = Fore.CYAN
 e_key = "YnJ1aG1vbWVudA==".encode()
 BLOCK_SIZE=16
@@ -43,7 +43,9 @@ class Encryption:
         return aes.decrypt(msg[BLOCK_SIZE:])
     def trans(self,key):
         return hashlib.md5(key).digest()
-def return_data(path):
+def return_data(path, default_data):
+    if not os.path.exists(path):
+        write_data(path, default_data)
     with open(path,"r") as file:
         data = json.load(file)
     file.close()

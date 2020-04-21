@@ -88,7 +88,7 @@ class SettingsPage(QtWidgets.QWidget):
         QtCore.QMetaObject.connectSlotsByName(settingspage)
 
     def set_data(self):
-        settings = return_data("./data/settings.json")
+        settings = return_data("./data/settings.json", {"webhook": "", "webhookonbrowser": True, "webhookonorder": True, "webhookonfailed": True, "browseronfailed": True, "onlybuyone": True})
         self.webhook_edit.setText(settings["webhook"])
         if settings["webhookonbrowser"]:
             self.browser_checkbox.setChecked(True)
