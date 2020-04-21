@@ -53,7 +53,7 @@ def write_data(path,data):
     with open(path, "w") as file:
         json.dump(data, file)
 def get_profile(profile_name):
-    profiles = return_data("./data/profiles.json")
+    profiles = return_data("./data/profiles.json", [])
     for p in profiles:
         if p["profile_name"] == profile_name:
             try:
@@ -65,7 +65,7 @@ def get_profile(profile_name):
 def get_proxy(list_name):
     if list_name == "Proxy List" or list_name == "None":
         return False
-    proxies = return_data("./data/proxies.json") 
+    proxies = return_data("./data/proxies.json", []) 
     for proxy_list in proxies:
         if proxy_list["list_name"] == list_name:
             return format_proxy(random.choice(proxy_list["proxies"].splitlines()))
