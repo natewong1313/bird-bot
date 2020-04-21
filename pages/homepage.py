@@ -193,7 +193,8 @@ class HomePage(QtWidgets.QWidget):
         QtCore.QMetaObject.connectSlotsByName(homepage)
 
     def load_tasks(self):
-        tasks_data = return_data("./data/tasks.json", [])
+        tasks_data = return_data("./data/tasks.json")
+        write_data("./data/tasks.json",[])
         try:
             for task in tasks_data:
                 tab = TaskTab(task["site"],task["product"],task["profile"],task["proxies"],task["monitor_delay"],task["error_delay"],task["max_price"],self.stop_all_tasks,self.scrollAreaWidgetContents)
@@ -236,7 +237,7 @@ class TaskTab(QtWidgets.QWidget):
         self.site,self.product,self.profile,self.proxies,self.monitor_delay,self.error_delay,self.max_price,self.stop_all = site,product,profile,proxies,monitor_delay,error_delay,max_price,stop_all
         self.setupUi(self)
         tasks.append(self)
-        tasks_data = return_data("./data/tasks.json", [])
+        tasks_data = return_data("./data/tasks.json")
         task_data = {"task_id": self.task_id,"site":self.site,"product": self.product,"profile": self.profile,"proxies": self.proxies,"monitor_delay": self.monitor_delay,"error_delay": self.error_delay,"max_price": self.max_price}
         tasks_data.append(task_data)
         write_data("./data/tasks.json",tasks_data)
@@ -435,7 +436,7 @@ class TaskTab(QtWidgets.QWidget):
         self.max_price = self.edit_dialog.price_edit.text()
         self.load_labels()
         self.delete_json()
-        tasks_data = return_data("./data/tasks.json", [])
+        tasks_data = return_data("./data/tasks.json")
         task_data = {"task_id": self.task_id, "site": self.site, "product": self.product, "profile": self.profile,
                      "proxies": self.proxies, "monitor_delay": self.monitor_delay, "error_delay": self.error_delay,
                      "max_price": self.max_price}
@@ -444,7 +445,7 @@ class TaskTab(QtWidgets.QWidget):
         self.edit_dialog.deleteLater()
 
     def delete_json(self):
-        tasks_data = return_data("./data/tasks.json", [])
+        tasks_data = return_data("./data/tasks.json")
         for task in tasks_data:
             if task["task_id"] == self.task_id:
                 tasks_data.remove(task)

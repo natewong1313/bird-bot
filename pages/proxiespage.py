@@ -78,7 +78,7 @@ class ProxiesPage(QtWidgets.QWidget):
         QtCore.QMetaObject.connectSlotsByName(proxiespage)
     
     def set_data(self):
-        proxies = return_data("./data/proxies.json", [])
+        proxies = return_data("./data/proxies.json")
         for proxies_list in proxies:
             list_name = proxies_list["list_name"]
             self.loadlist_box.addItem(list_name)
@@ -87,7 +87,7 @@ class ProxiesPage(QtWidgets.QWidget):
     def load_proxies(self):
         list_name = self.loadlist_box.currentText()
         if list_name !="Load Proxies":
-            proxies = return_data("./data/proxies.json", [])
+            proxies = return_data("./data/proxies.json")
             for proxies_list in proxies:
                 if proxies_list["list_name"] == list_name:
                     self.listname_edit.setText(list_name)
@@ -105,7 +105,7 @@ class ProxiesPage(QtWidgets.QWidget):
                 "list_name": list_name,
                 "proxies": self.proxies_edit.toPlainText()
             }
-            proxies = return_data("./data/proxies.json", [])
+            proxies = return_data("./data/proxies.json")
             for p in proxies:
                 if p["list_name"] == list_name:
                     proxies.remove(p)
@@ -121,7 +121,7 @@ class ProxiesPage(QtWidgets.QWidget):
     
     def delete_proxies(self):
         list_name = self.listname_edit.text()
-        proxies = return_data("./data/proxies.json", [])
+        proxies = return_data("./data/proxies.json")
         for p in proxies:
             if p["list_name"] == list_name:
                 proxies.remove(p)

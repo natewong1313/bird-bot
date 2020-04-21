@@ -10,7 +10,7 @@ from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from webhook import DiscordWebhook, DiscordEmbed
 from chromedriver_py import binary_path as driver_path
-import json, platform, darkdetect, random, settings, threading, hashlib, base64, os
+import json, platform, darkdetect, random, settings, threading, hashlib, base64
 normal_color = Fore.CYAN
 e_key = "YnJ1aG1vbWVudA==".encode()
 BLOCK_SIZE=16
@@ -43,17 +43,17 @@ class Encryption:
         return aes.decrypt(msg[BLOCK_SIZE:])
     def trans(self,key):
         return hashlib.md5(key).digest()
-def return_data(path, default_data):
-    if not os.path.exists(path):
-        write_data(path, default_data)
+def return_data(path):
     with open(path,"r") as file:
         data = json.load(file)
+    file.close()
     return data
 def write_data(path,data):
     with open(path, "w") as file:
         json.dump(data, file)
+    file.close()
 def get_profile(profile_name):
-    profiles = return_data("./data/profiles.json", [])
+    profiles = return_data("./data/profiles.json")
     for p in profiles:
         if p["profile_name"] == profile_name:
             p["card_number"] = (Encryption().decrypt(p["card_number"].encode("utf-8"))).decode("utf-8")
@@ -62,7 +62,7 @@ def get_profile(profile_name):
 def get_proxy(list_name):
     if list_name == "Proxy List" or list_name == "None":
         return False
-    proxies = return_data("./data/proxies.json", []) 
+    proxies = return_data("./data/proxies.json") 
     for proxy_list in proxies:
         if proxy_list["list_name"] == list_name:
             return format_proxy(random.choice(proxy_list["proxies"].splitlines()))
