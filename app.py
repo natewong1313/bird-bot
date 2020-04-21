@@ -4,6 +4,7 @@ from pages.createdialog import CreateDialog
 from pages.profilespage import ProfilesPage
 from pages.proxiespage import ProxiesPage
 from pages.settingspage import SettingsPage
+from utils import return_data, write_data, Encryption
 import images.images, sys, os
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -142,6 +143,17 @@ class MainWindow(QtWidgets.QMainWindow):
         
 #(.*)
 if __name__ == "__main__":
+    profiles = return_data("./data/profiles.json")
+    profiles_changed = False
+    for p in profiles:
+        try:
+            (Encryption().decrypt(p["card_number"].encode("utf-8"))).decode("utf-8")
+        except ValueError:
+            profiles_changed = True
+            p["card_number"] = Encryption().encrypt(p["card_numbers"]).decode("utf-8")
+
+    if profiles_changed:
+        write_data("./data/profiles.json", profiles)
     ui_app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow()
     ui.setWindowIcon(QtGui.QIcon("images/birdbot.png"))
