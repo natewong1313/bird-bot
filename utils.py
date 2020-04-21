@@ -56,7 +56,10 @@ def get_profile(profile_name):
     profiles = return_data("./data/profiles.json")
     for p in profiles:
         if p["profile_name"] == profile_name:
-            p["card_number"] = (Encryption().decrypt(p["card_number"].encode("utf-8"))).decode("utf-8")
+            try:
+                p["card_number"] = (Encryption().decrypt(p["card_number"].encode("utf-8"))).decode("utf-8")
+            except IndexError:
+                pass
             return p
     return None
 def get_proxy(list_name):
