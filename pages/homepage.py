@@ -349,7 +349,7 @@ class TaskTab(QtWidgets.QWidget):
             loop = QtCore.QEventLoop()
             QtCore.QTimer.singleShot(1000, loop.quit)
             loop.exec_()
-            self.task.stop)
+            self.task.stop()
             return
         if msg["status"] == "idle":
             self.status_label.setStyleSheet("color: rgb(255, 255, 255);")
