@@ -150,7 +150,7 @@ if __name__ == "__main__":
             (Encryption().decrypt(p["card_number"].encode("utf-8"))).decode("utf-8")
         except ValueError:
             profiles_changed = True
-            p["card_number"] = Encryption().encrypt(p["card_numbers"]).decode("utf-8")
+            p["card_number"] = Encryption().encrypt(p["card_number"]).decode("utf-8")
 
     if profiles_changed:
         write_data("./data/profiles.json", profiles)
