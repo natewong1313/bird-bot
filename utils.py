@@ -58,7 +58,7 @@ def get_profile(profile_name):
         if p["profile_name"] == profile_name:
             try:
                 p["card_number"] = (Encryption().decrypt(p["card_number"].encode("utf-8"))).decode("utf-8")
-            except IndexError:
+            except ValueError:
                 pass
             return p
     return None
