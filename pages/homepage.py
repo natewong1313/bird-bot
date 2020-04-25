@@ -3,7 +3,7 @@ from sites.walmart import Walmart
 from sites.bestbuy import BestBuy
 from pages.createdialog import CreateDialog
 from utils import get_profile, get_proxy, BirdLogger, return_data, write_data, open_browser
-import urllib.request,sys,platform
+import urllib.request,sys,platform,ssl
 import settings
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -496,6 +496,7 @@ class ImageThread(QtCore.QThread):
         QtCore.QThread.__init__(self)
 
     def run(self):
+        ssl._create_default_https_context = ssl._create_unverified_context
         data = urllib.request.urlopen(self.image_url).read()
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(data)
