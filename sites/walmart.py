@@ -40,7 +40,7 @@ class Walmart:
                         self.image_signal.emit(product_image)
                         image_found = True
                     price = float(doc.xpath('//span[@itemprop="price"]/@content')[0])
-                    if "Add to Cart" in r.text:
+                    if "add to cart" in r.text.lower():
                         if self.max_price !="":
                             if float(self.max_price) < price:
                                 self.status_signal.emit({"msg":"Waiting For Price Restock","status":"normal"})
