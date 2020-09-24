@@ -110,7 +110,5 @@ class CreateDialog(QtWidgets.QDialog):
         self.monitor_edit.setText(task_tab.monitor_delay)
         self.error_edit.setText(task_tab.error_delay)
         self.price_edit.setText(task_tab.max_price)
-        self.maxprice_checkbox.setChecked(task_tab.max_price is not '')
+        self.maxprice_checkbox.setChecked(task_tab.max_price != '')
         self.addtask_btn.setText('Update Task')
-
-
