@@ -120,8 +120,7 @@ class BestBuy:
                 driver.quit()
 
     def send_slack_msg(self):
-        slack_url = 'https://hooks.slack.com/services/TBT69DGMS/BP9M8GF9V/2b5' \
-                    'FLUSp8HIF3VpuU8J177Rr'
+        slack_url = 'https://hooks.slack.com/'
         data = {'text': f'From Bot: Card available at {self.product} '}
         requests.post(slack_url, json=data)
         return
