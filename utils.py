@@ -6,10 +6,10 @@ except:
     from Cryptodome.Cipher import AES
 from colorama import init, Fore, Back, Style
 from datetime import datetime
-from selenium.webdriver import Chrome, ChromeOptions
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.common import exceptions
 from webhook import DiscordWebhook, DiscordEmbed
-from chromedriver_py import binary_path as driver_path
 import json, platform, darkdetect, random, settings, threading, hashlib, base64
 normal_color = Fore.CYAN
 e_key = "YnJ1aG1vbWVudA==".encode()
@@ -80,6 +80,7 @@ def format_proxy(proxy):
         }
     except IndexError:
         return {"http": "http://" + proxy, "https": "https://" + proxy}
+
 def send_webhook(webhook_type,site,profile,task_id,image_url):
     if settings.webhook !="":
         webhook = DiscordWebhook(url=settings.webhook, username="Bird Bot", avatar_url="https://i.imgur.com/fy26LbM.png")
@@ -95,6 +96,8 @@ def send_webhook(webhook_type,site,profile,task_id,image_url):
             if not settings.webhook_on_failed:
                 return
             embed = DiscordEmbed(title="Payment Failed",color=0xfc5151)
+        else:
+            embed = DiscordEmbed(title=webhook_type, color=0xfc5151)
         embed.set_footer(text="Via Bird Bot",icon_url="https://i.imgur.com/fy26LbM.png")
         embed.add_embed_field(name="Site", value=site,inline=True)
         embed.add_embed_field(name="Profile", value=profile,inline=True)
@@ -110,30 +113,17 @@ def open_browser(link,cookies):
     threading.Thread(target = start_browser, args=(link,cookies)).start()
 
 def start_browser(link,cookies):
-    caps = DesiredCapabilities().CHROME
-    caps["pageLoadStrategy"] = "eager" 
-    chrome_options = ChromeOptions()
-    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    chrome_options.add_experimental_option("useAutomationExtension", False)
-    driver = Chrome(desired_capabilities=caps, executable_path=driver_path, options=chrome_options)
-    driver.execute_cdp_cmd(
-            "Page.addScriptToEvaluateOnNewDocument",
-            {
-                "source": """
-        Object.defineProperty(window, 'navigator', {
-            value: new Proxy(navigator, {
-              has: (target, key) => (key === 'webdriver' ? false : key in target),
-              get: (target, key) =>
-                key === 'webdriver'
-                  ? undefined
-                  : typeof target[key] === 'function'
-                  ? target[key].bind(target)
-                  : target[key]
-            })
-        })
-                  """
-            },
+    options = Options()
+    options.headless = False
+    options.log.level = "trace"
+    firefox_profile = webdriver.FirefoxProfile()
+    firefox_profile.accept_untrusted_certs = True
+    driver = webdriver.Firefox(
+        options=options,
+        firefox_profile=firefox_profile,
+        service_log_path="/dev/null",
     )
+
     driver.get(link)
     for cookie in cookies:
         driver.add_cookie({
