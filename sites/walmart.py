@@ -1,6 +1,6 @@
 from sites.walmart_encryption import walmart_encryption as w_e
 from utils import send_webhook
-import urllib,requests,time,lxml.html,json,sys,settings
+import urllib,requests,time,lxml.html,json,sys,settings,re
 
 class Walmart:
     def __init__(self,task_id,status_signal,image_signal,product,profile,proxy,monitor_delay,error_delay,max_price):
@@ -40,7 +40,8 @@ class Walmart:
                         self.image_signal.emit(product_image)
                         image_found = True
                     price = float(doc.xpath('//span[@itemprop="price"]/@content')[0])
-                    if "Add to Cart" in r.text:
+                    # print(r.text)
+                    if re.search("Add to Cart", r.text, re.IGNORECASE):
                         if self.max_price !="":
                             if float(self.max_price) < price:
                                 self.status_signal.emit({"msg":"Waiting For Price Restock","status":"normal"})
