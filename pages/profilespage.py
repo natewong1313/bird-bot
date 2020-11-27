@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from utils import return_data,write_data
+from utils import return_data,write_data,get_profile,Encryption
 import sys,platform
 def no_abort(a, b, c):
     sys.__excepthook__(a, b, c)
@@ -270,7 +270,7 @@ class ProfilesPage(QtWidgets.QWidget):
             self.cardyear_box.addItem(str(year))
         for card_type in ["Visa", "Mastercard", "American Express", "Discover"]:
             self.cardtype_box.addItem(card_type)
-        profiles = return_data("./profiles.json")
+        profiles = return_data("./data/profiles.json")
         for profile in profiles:
             profile_name = profile["profile_name"]
             self.loadprofile_box.addItem(profile_name)
@@ -291,36 +291,35 @@ class ProfilesPage(QtWidgets.QWidget):
    
     def load_profile(self):
         profile_name = self.loadprofile_box.currentText()
-        profiles = return_data("./profiles.json")
-        for p in profiles:
-            if p["profile_name"] == profile_name:
-                self.profilename_edit.setText(p["profile_name"])
-                self.shipping_fname_edit.setText(p["shipping_fname"])
-                self.shipping_lname_edit.setText(p["shipping_lname"])
-                self.shipping_email_edit.setText(p["shipping_email"])
-                self.shipping_phone_edit.setText(p["shipping_phone"])
-                self.shipping_address1_edit.setText(p["shipping_a1"])
-                self.shipping_address2_edit.setText(p["shipping_a2"])
-                self.shipping_city_edit.setText(p["shipping_city"])
-                self.shipping_zipcode_edit.setText(p["shipping_zipcode"])
-                self.shipping_state_box.setCurrentIndex(self.shipping_state_box.findText(p["shipping_state"]))
-                self.shipping_country_box.setCurrentIndex(self.shipping_country_box.findText(p["shipping_country"]))
-                self.billing_fname_edit.setText(p["billing_fname"])
-                self.billing_lname_edit.setText(p["billing_lname"])
-                self.billing_email_edit.setText(p["billing_email"])
-                self.billing_phone_edit.setText(p["billing_phone"])
-                self.billing_address1_edit.setText(p["billing_a1"])
-                self.billing_address2_edit.setText(p["billing_a2"])
-                self.billing_city_edit.setText(p["billing_city"])
-                self.billing_zipcode_edit.setText(p["billing_zipcode"])
-                self.billing_state_box.setCurrentIndex(self.billing_state_box.findText(p["billing_state"]))
-                self.billing_country_box.setCurrentIndex(self.billing_country_box.findText(p["billing_country"]))
-                self.cardnumber_edit.setText(p["card_number"])
-                self.cardmonth_box.setCurrentIndex(self.cardmonth_box.findText(p["card_month"]))
-                self.cardyear_box.setCurrentIndex(self.cardyear_box.findText(p["card_year"]))
-                self.cardtype_box.setCurrentIndex(self.cardtype_box.findText(p["card_type"]))
-                self.cardcvv_edit.setText(p["card_cvv"])
-                return
+        p = get_profile(profile_name)
+        if p is not None:
+            self.profilename_edit.setText(p["profile_name"])
+            self.shipping_fname_edit.setText(p["shipping_fname"])
+            self.shipping_lname_edit.setText(p["shipping_lname"])
+            self.shipping_email_edit.setText(p["shipping_email"])
+            self.shipping_phone_edit.setText(p["shipping_phone"])
+            self.shipping_address1_edit.setText(p["shipping_a1"])
+            self.shipping_address2_edit.setText(p["shipping_a2"])
+            self.shipping_city_edit.setText(p["shipping_city"])
+            self.shipping_zipcode_edit.setText(p["shipping_zipcode"])
+            self.shipping_state_box.setCurrentIndex(self.shipping_state_box.findText(p["shipping_state"]))
+            self.shipping_country_box.setCurrentIndex(self.shipping_country_box.findText(p["shipping_country"]))
+            self.billing_fname_edit.setText(p["billing_fname"])
+            self.billing_lname_edit.setText(p["billing_lname"])
+            self.billing_email_edit.setText(p["billing_email"])
+            self.billing_phone_edit.setText(p["billing_phone"])
+            self.billing_address1_edit.setText(p["billing_a1"])
+            self.billing_address2_edit.setText(p["billing_a2"])
+            self.billing_city_edit.setText(p["billing_city"])
+            self.billing_zipcode_edit.setText(p["billing_zipcode"])
+            self.billing_state_box.setCurrentIndex(self.billing_state_box.findText(p["billing_state"]))
+            self.billing_country_box.setCurrentIndex(self.billing_country_box.findText(p["billing_country"]))
+            self.cardnumber_edit.setText(p["card_number"])
+            self.cardmonth_box.setCurrentIndex(self.cardmonth_box.findText(p["card_month"]))
+            self.cardyear_box.setCurrentIndex(self.cardyear_box.findText(p["card_year"]))
+            self.cardtype_box.setCurrentIndex(self.cardtype_box.findText(p["card_type"]))
+            self.cardcvv_edit.setText(p["card_cvv"])
+        return
     def save_profile(self):
         profile_name = self.profilename_edit.text()
         profile_data={
@@ -345,19 +344,19 @@ class ProfilesPage(QtWidgets.QWidget):
             "billing_zipcode": self.billing_zipcode_edit.text(),
             "billing_state": self.billing_state_box.currentText(),
             "billing_country": self.billing_country_box.currentText(),
-            "card_number": self.cardnumber_edit.text(),
+            "card_number": (Encryption().encrypt(self.cardnumber_edit.text())).decode("utf-8"),
             "card_month": self.cardmonth_box.currentText(),
             "card_year": self.cardyear_box.currentText(),
             "card_type": self.cardtype_box.currentText(),
             "card_cvv": self.cardcvv_edit.text()
         }      
-        profiles = return_data("./profiles.json")
+        profiles = return_data("./data/profiles.json")
         for p in profiles:
             if p["profile_name"] == profile_name:
                 profiles.remove(p)
                 break
         profiles.append(profile_data)
-        write_data("./profiles.json",profiles)
+        write_data("./data/profiles.json",profiles)
         if self.loadprofile_box.findText(profile_name) == -1:
             self.loadprofile_box.addItem(profile_name)
             self.parent().parent().createdialog.profile_box.addItem(profile_name)
@@ -365,12 +364,12 @@ class ProfilesPage(QtWidgets.QWidget):
     
     def delete_profile(self):
         profile_name = self.profilename_edit.text()
-        profiles = return_data("./profiles.json")
+        profiles = return_data("./data/profiles.json")
         for profile in profiles:
             if profile["profile_name"] == profile_name:
                 profiles.remove(profile)
                 break
-        write_data("./profiles.json",profiles)
+        write_data("./data/profiles.json",profiles)
         self.loadprofile_box.removeItem(self.loadprofile_box.findText(profile_name))
         self.parent().parent().createdialog.profile_box.removeItem(self.parent().parent().createdialog.profile_box.findText(profile_name))
 
